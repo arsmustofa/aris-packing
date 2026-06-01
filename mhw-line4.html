@@ -207,11 +207,20 @@
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
+            transition: background-color 0.5s ease; /* Transisi halus untuk efek flash */
         }
         .preview-box.generated {
             color: #333;
             text-align: left;
             display: block;
+        }
+        /* Efek Flash Kuning */
+        @keyframes flashYellow {
+            0% { background-color: #fff9c4; border-color: #fbc02d; }
+            100% { background-color: #f8f9fa; border-color: #cbd5e0; }
+        }
+        .preview-box.flash-highlight {
+            animation: flashYellow 1.2s ease-out;
         }
         .watermark {
             position: absolute;
@@ -368,7 +377,6 @@
         </div>
     </div>
     
-    <!-- SECTION HASIL MHW: Modifikasi Input Total Packing Menjadi Total Transfer -->
     <div class="form-group">
         <label>Total transfer</label>
         <div class="input-with-unit">
@@ -436,7 +444,6 @@
         </div>
     </div>
     
-    <!-- INPUT BARU: Total Reject Readonly -->
     <div class="form-group">
         <label style="font-weight: bold;">Total reject</label>
         <div class="reject-input-group">
@@ -461,7 +468,6 @@
     </div>
 
     <div class="section-title">Data Tambahan</div>
-    <!-- EDIT BARU: Opsi Tinggalan (Ada / Tidak Ada) -->
     <div class="form-group">
         <label>Tinggalan</label>
         <div class="radio-group">
@@ -469,7 +475,6 @@
             <label><input type="radio" name="opt_tinggalan" value="tidak" checked onchange="toggleInputTinggalan()"> Tidak ada</label>
         </div>
     </div>
-    <!-- EDIT: Mengubah textbox menjadi format teks biasa rata kanan -->
     <div class="form-group" id="row_batch_tinggalan" style="display: none;">
         <label>No Batch</label>
         <div style="display: flex; width: 60%; gap: 10px; align-items: center;">
@@ -480,7 +485,6 @@
         </div>
     </div>
 
-    <!-- EDIT: Mengubah textbox menjadi format teks biasa rata kanan -->
     <div class="form-group">
         <label>No Batch</label>
         <div style="display: flex; width: 60%; gap: 10px; align-items: center;">
@@ -491,7 +495,6 @@
         </div>
     </div>
 
-    <!-- POSISI BARU: FITUR Kode-3 (Ada / Tidak Ada) tepat di atas Pemakaian VP -->
     <div class="form-group">
         <label>Kode-3</label>
         <div class="radio-group">
@@ -499,7 +502,6 @@
             <label><input type="radio" name="opt_kode3" value="tidak" checked onchange="toggleInputKode3()"> Tidak ada</label>
         </div>
     </div>
-    <!-- Row No Batch untuk Kode-3 -->
     <div class="form-group" id="row_batch_kode3" style="display: none;">
         <label>No Batch</label>
         <div style="display: flex; width: 60%; gap: 10px; align-items: center;">
@@ -1152,6 +1154,17 @@
         previewBox.classList.add('generated');
         
         document.getElementById('btnCopy').style.display = 'block';
+
+        // --- TAMBAHAN EFEK BARU: GESER KE BAWAH & FLASH HIGHLIGHT KUNING ---
+        // Menghapus class lama jika sebelumnya sudah ada (agar animasi bisa di-trigger ulang)
+        previewBox.classList.remove('flash-highlight');
+        // Trigger reflow untuk me-restart animasi CSS
+        void previewBox.offsetWidth; 
+        // Menambahkan class animasi flash
+        previewBox.classList.add('flash-highlight');
+
+        // Scroll layar secara halus menuju ke elemen previewBox
+        previewBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function copyKeClipboard() {
