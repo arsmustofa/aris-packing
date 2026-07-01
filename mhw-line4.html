@@ -583,7 +583,7 @@
 <div class="leader-container">
     <div class="section-title">Kontak Leader</div>
     <div class="form-group">
-        <label>Pilih Leader</label>
+        <label>Nama Leader</label>
         <select id="pilih_leader" onchange="updateLeaderWhatsApp()">
             <option value="" selected disabled>-- pilih leader --</option>
             <option value="diajeng">Diajeng</option>
@@ -957,9 +957,10 @@
         }
     }
 
+    /* --- EDIT: REVISI FORMAT PERSEN KOSONG JADI LEBIH LEBAR (  -  %) --- */
     function formatNilai(nilai, persentase = false, totalMHW = 1) {
         if (nilai === 0 || nilai === '' || isNaN(nilai)) {
-            return persentase ? '-%' : '- pcs';
+            return persentase ? '  -  %' : '- pcs';
         }
         if (persentase) {
             let pct = (nilai / totalMHW) * 100;
@@ -1253,7 +1254,7 @@
         selection.removeAllRanges();
     }
 
-    // --- EDIT FUNGSI GENERATE GAMBAR: MERUBAH TAMPILAN MENJADI FORM LAPORAN ESKLUSIF ---
+    // --- REVISI FUNGSI GENERATE GAMBAR: PROSES RATA KANAN NILAI KOSONG & SPASI LEBAR PERSEN KOSONG ---
     function generateGambar() {
         const previewBox = document.getElementById('previewBox');
         if (!previewBox.classList.contains('generated')) {
@@ -1267,16 +1268,87 @@
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // Pengaturan layout form laporan
         const fontSize = 14;
         const lineHeight = 24;
         const padding = 30;
         
-        // Titik X koordinat pengunci untuk meluruskan titik dua (:) dan value seperti fungsi TAB
-        const colonX = 200;
-        const valueX = 215;
+        // --- PROSES 1: MENGELOMPOKKAN BARIS DAN MENGHITUNG MATRIKS UKURAN MAKSIMAL PER-SECTION ---
+        let lineSectionMapping = [];
+        let sectionMetrics = {}; 
+        let sectIdx = 0;
         
-        // Penghitungan tinggi canvas dinamis agar pas dengan isi laporan
+        // Tahap A: Pemetaan Baris ke ID Section masing-masing
+        lines.forEach((line, index) => {
+            let textLine = line.trim();
+            if (textLine === "") {
+                lineSectionMapping.push({ index, sectIdx, type: 'empty' });
+                sectIdx++; 
+                return;
+            }
+            
+            let isBold = false;
+            if (line.includes('*')) {
+                isBold = true;
+                textLine = line.replace(/\*/g, '').trim();
+            }
+            
+            let isTitleLine = isBold && !textLine.includes(':') && (textLine.includes('Reject') || textLine.includes('Hasil') || textLine.includes('Sampel') || textLine.includes('KENDALA'));
+            
+            if (isTitleLine) {
+                sectIdx++; 
+                lineSectionMapping.push({ index, sectIdx, type: 'title' });
+            } else if (index === 0) {
+                lineSectionMapping.push({ index, sectIdx: 0, type: 'header' });
+            } else {
+                lineSectionMapping.push({ index, sectIdx, type: 'body' });
+            }
+        });
+
+        // Tahap B: Kalkulasi Lebar Label Terpanjang dan Nominal Terbesar secara Mandiri (Lokal Section)
+        lines.forEach((line, index) => {
+            let mapItem = lineSectionMapping[index];
+            let sIdx = mapItem.sectIdx;
+            if (!sectionMetrics[sIdx]) {
+                sectionMetrics[sIdx] = { maxLabelWidth: 0, maxNumWidth: 35 }; // default minimum lebar angka 35px agar simetris
+            }
+            
+            let textLine = line.trim();
+            if (textLine === "") return;
+            
+            let isBold = false;
+            if (line.includes('*')) {
+                isBold = true;
+                textLine = line.replace(/\*/g, '').trim();
+            }
+            
+            if (textLine.includes(':') && mapItem.type !== 'title') {
+                let colonIndex = textLine.indexOf(':');
+                let label = textLine.substring(0, colonIndex).trim();
+                let value = textLine.substring(colonIndex + 1).trim();
+                
+                let startX = line.trim().startsWith('-') ? padding + 15 : padding;
+                if (label.startsWith('-')) label = label.substring(1).trim();
+                
+                ctx.font = isBold ? "bold 14px 'Segoe UI', Arial, sans-serif" : "500 14px 'Segoe UI', Arial, sans-serif";
+                let labelWidth = ctx.measureText(label).width + (startX - padding);
+                
+                let numPart = value;
+                if (value.includes('pcs')) numPart = value.split('pcs')[0].trim();
+                else if (value.includes('pack')) numPart = value.replace('pack', '').trim();
+                else if (value.includes('Roll')) numPart = value.replace('Roll', '').trim();
+                
+                let numWidth = ctx.measureText(numPart).width;
+                
+                if (labelWidth > sectionMetrics[sIdx].maxLabelWidth) {
+                    sectionMetrics[sIdx].maxLabelWidth = labelWidth;
+                }
+                if (numWidth > sectionMetrics[sIdx].maxNumWidth) {
+                    sectionMetrics[sIdx].maxNumWidth = numWidth;
+                }
+            }
+        });
+
+        // Perhitungan tinggi canvas dinamis
         let estimatedHeight = padding * 2;
         lines.forEach((line, index) => {
             let textLine = line.trim();
@@ -1286,7 +1358,7 @@
                 if (index === 0) {
                     estimatedHeight += 28;
                 } else if (textLine.replace(/\*/g, '').trim() && !textLine.includes(':') && line.includes('*')) {
-                    estimatedHeight += lineHeight + 6; // Spasi extra untuk penanda judul section baru
+                    estimatedHeight += lineHeight + 6;
                 } else {
                     estimatedHeight += lineHeight;
                 }
@@ -1296,16 +1368,17 @@
         canvas.width = 560;
         canvas.height = estimatedHeight + 10;
         
-        // Background Form putih bersih mewah
+        // Background Form putih
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Aksen garis tebal hijau di paling atas pelengkap estetika form laporan perusahaan
+        // Aksen garis tebal hijau di paling atas
         ctx.fillStyle = "#1e4620";
         ctx.fillRect(0, 0, canvas.width, 6);
         
         let currentY = padding;
         
+        // --- PROSES 2: PENGGAMBARAN KE CANVAS MENGGUNAKAN ATURAN BARU ---
         lines.forEach((line, index) => {
             let textLine = line.trim();
             if (textLine === "") {
@@ -1313,14 +1386,15 @@
                 return;
             }
             
-            // Cek deteksi tanda bintang (*) untuk menebalkan teks tulisan asli form
             let isBold = false;
             if (line.includes('*')) {
                 isBold = true;
-                textLine = line.replace(/\*/g, '').trim(); // Hilangkan simbol bintang dari visual gambar
+                textLine = line.replace(/\*/g, '').trim();
             }
             
-            ctx.fillStyle = "#2d3748"; // Warna teks abu gelap profesional (tidak hitam kaku baku)
+            let isTitleLine = isBold && !textLine.includes(':') && (textLine.includes('Reject') || textLine.includes('Hasil') || textLine.includes('Sampel') || textLine.includes('KENDALA'));
+            
+            ctx.fillStyle = "#2d3748";
             if (isBold) {
                 ctx.font = "bold " + fontSize + "px 'Segoe UI', Arial, sans-serif";
                 ctx.fillStyle = "#1a202c";
@@ -1328,14 +1402,13 @@
                 ctx.font = "500 " + fontSize + "px 'Segoe UI', Arial, sans-serif";
             }
             
-            // Render khusus untuk Judul Utama Laporan di baris pertama
+            // Render Judul Utama Laporan
             if (index === 0) {
                 ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
                 ctx.fillStyle = "#1e4620";
                 ctx.fillText(textLine, padding, currentY);
                 currentY += 28;
                 
-                // Tambahkan pembatas tipis elegan di bawah judul utama
                 ctx.strokeStyle = "#e2e8f0";
                 ctx.lineWidth = 1;
                 ctx.beginPath();
@@ -1345,8 +1418,8 @@
                 return;
             }
             
-            // Render khusus untuk Sub Judul Section Kategori (seperti Reject MHW, Hasil MHW, dsb)
-            if (isBold && !textLine.includes(':') && (textLine.includes('Reject') || textLine.includes('Hasil') || textLine.includes('Sampel') || textLine.includes('KENDALA'))) {
+            // Render Sub Judul Section Kategori
+            if (isTitleLine) {
                 currentY += 6;
                 ctx.font = "bold " + (fontSize + 2) + "px 'Segoe UI', Arial, sans-serif";
                 ctx.fillStyle = "#1e4620";
@@ -1355,14 +1428,23 @@
                 return;
             }
             
-            // PROSES PEMISAHAN & PENJAJARAN TABULASI TITIK DUA (:) 
+            // Ambil metrik kelurusan lokal milik section ini
+            let sIdx = lineSectionMapping[index].sectIdx;
+            let metrics = sectionMetrics[sIdx] || { maxLabelWidth: 150, maxNumWidth: 35 };
+            
+            let colonX = padding + (metrics.maxLabelWidth || 0) + 10;
+            let numberStartX = colonX + 15;
+            let numberEndX = numberStartX + (metrics.maxNumWidth || 0);
+            let unitX = numberEndX + 15;
+            
+            ctx.textAlign = "left"; // Reset default alignment canvas
+
             if (textLine.includes(':')) {
                 let colonIndex = textLine.indexOf(':');
                 let label = textLine.substring(0, colonIndex).trim();
                 let value = textLine.substring(colonIndex + 1).trim();
                 
                 let startX = padding;
-                // Buat struktur sub-kondisi berindentasi rapi ke dalam jika item memakai tanda strip (-)
                 if (line.trim().startsWith('-')) {
                     startX = padding + 15; 
                     if (label.startsWith('-')) {
@@ -1370,22 +1452,58 @@
                     }
                 }
                 
-                // Gambar Label Kiri
                 ctx.fillText(label, startX, currentY);
                 
-                // Kunci posisi gambar titik dua (:) pas sejajar ke bawah di koordinat X yang ditentukan
                 ctx.font = "bold " + fontSize + "px 'Segoe UI', Arial, sans-serif";
                 ctx.fillText(":", colonX, currentY);
                 
-                // Gambar Nilai Data di sebelah kanan dari titik dua (:) secara presisi
                 if (isBold) {
                     ctx.font = "bold " + fontSize + "px 'Segoe UI', Arial, sans-serif";
                 } else {
                     ctx.font = "500 " + fontSize + "px 'Segoe UI', Arial, sans-serif";
                 }
-                ctx.fillText(value, valueX, currentY);
+
+                // Pengkondisian Khusus untuk data bermeter/ber-satuan
+                if (value.includes('pcs')) {
+                    let parts = value.split('pcs');
+                    let numPart = parts[0].trim();
+                    let pctPart = parts[1] ? parts[1].trim() : "";
+                    
+                    /* REVISI 1: Tanda kosong (-) dipaksa rata kanan rapat di kordinat numberEndX */
+                    ctx.textAlign = "right";
+                    ctx.fillText(numPart, numberEndX, currentY);
+                    
+                    ctx.textAlign = "left";
+                    let unitString = "pcs" + (pctPart ? " " + pctPart : "");
+                    ctx.fillText(unitString, unitX, currentY);
+
+                } else if (value.includes('pack')) {
+                    let numPart = value.replace('pack', '').trim();
+                    
+                    /* REVISI 1: Tanda kosong (-) pack rata kanan */
+                    ctx.textAlign = "right";
+                    ctx.fillText(numPart, numberEndX, currentY);
+                    
+                    ctx.textAlign = "left";
+                    ctx.fillText("pack", unitX, currentY);
+
+                } else if (value.includes('Roll')) {
+                    let numPart = value.replace('Roll', '').trim();
+                    
+                    /* REVISI 1: Tanda kosong (-) roll rata kanan */
+                    ctx.textAlign = "right";
+                    ctx.fillText(numPart, numberEndX, currentY);
+                    
+                    ctx.textAlign = "left";
+                    ctx.fillText("Roll", unitX, currentY);
+
+                } else {
+                    // Untuk text baris umum (Shift, Tanggal, No batch text)
+                    ctx.textAlign = "left";
+                    ctx.fillText(value, numberStartX, currentY);
+                }
             } else {
-                // Gambar baris biasa non titik dua (seperti Tanggal Hari atau isi detail Kendala lapangan)
+                // Untuk baris catatan kendala yang tidak memiliki tanda titik dua
                 let startX = padding;
                 if (line.trim().startsWith('-')) {
                     startX = padding + 15;
@@ -1401,6 +1519,7 @@
             currentY += lineHeight;
         });
         
+        ctx.textAlign = "left"; // Kembalikan posisi awal ke left alignment
         const namaMesin = document.getElementById('mesin').value || 'MHW';
         const namaProduk = document.getElementById('produk').value || 'Produk';
         
@@ -1416,7 +1535,7 @@
         previewContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // --- FUNGSI BARU: DIJALANKAN SAAT TOMBOL DOWNLOAD GAMBAR DIKLIK ---
+    // --- DIJALANKAN SAAT TOMBOL DOWNLOAD GAMBAR DIKLIK ---
     function downloadGambarGenerated() {
         if (!currentImageBlobUrl) {
             alert("Gambar belum siap!");
