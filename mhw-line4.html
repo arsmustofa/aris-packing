@@ -186,7 +186,7 @@
             align-items: center;
             gap: 10px;
         }
-        .btn-gen, .btn-copy, .btn-wa-leader {
+        .btn-gen, .btn-copy, .btn-wa-leader, .btn-gambar {
             background-color: #25d366;
             color: white;
             border: none;
@@ -207,6 +207,15 @@
             display: none;
             margin: 15px auto 0 auto;
         }
+        /* Styling khusus tombol generate gambar */
+        .btn-gambar {
+            display: none;
+            margin: 10px auto 0 auto;
+            background-color: #1e4620; /* Menggunakan warna hijau gelap senada dengan tema judul */
+            box-shadow: 0 4px 6px rgba(30, 70, 32, 0.2);
+        }
+        .btn-gambar:hover { background-color: #143016; }
+        
         .btn-wa-leader {
             display: none;
             margin: 25px auto 0 auto; 
@@ -558,6 +567,17 @@
     <div class="preview-box" id="previewBox">Hasil generate akan muncul disini...</div>
     
     <button type="button" class="btn-copy" id="btnCopy" onclick="copyKeClipboard()">📋 Copy ke Clipboard</button>
+    <!-- TAMBAHAN: Tombol Generate Gambar berada di bawah tombol copy -->
+    <button type="button" class="btn-gambar" id="btnGambar" onclick="generateGambar()">🖼️ Generate Gambar</button>
+
+    <!-- EDIT/TAMBAHAN: Tempat untuk menampilkan gambar hasil generate beserta tombol unduhnya -->
+    <div id="imagePreviewContainer" style="display: none; text-align: center; margin-top: 20px; padding: 15px; border: 1px dashed #25d366; border-radius: 8px; background: #fafafa;">
+        <p style="font-weight: bold; color: #1e4620; margin-top: 0; font-size: 14px;">🖼️ Preview Gambar Hasil Generate:</p>
+        <img id="imageOutput" src="" alt="Laporan Gambar" style="max-width: 100%; border: 1px solid #cbd5e0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 6px; background: #fff;">
+        <div style="margin-top: 15px;">
+            <button type="button" class="btn-gen" onclick="downloadGambarGenerated()" style="background-color: #1e4620; box-shadow: 0 4px 6px rgba(30, 70, 32, 0.2);">📥 Download Gambar</button>
+        </div>
+    </div>
 </div>
 
 <div class="leader-container">
@@ -580,6 +600,9 @@
 
 <script>
     let listProdukAsli = [];
+    // Variabel global baru untuk menyimpan data gambar ter-generate
+    let currentImageBlobUrl = "";
+    let currentImageFileName = "";
 
     window.onload = function() {
         const hariIni = new Date().toISOString().split('T')[0];
@@ -1175,17 +1198,18 @@
         previewBox.classList.add('generated');
         
         document.getElementById('btnCopy').style.display = 'block';
+        // PERUBAHAN: Tampilkan juga tombol generate gambar ketika laporan berhasil dibuat
+        document.getElementById('btnGambar').style.display = 'block';
 
         // --- TAMBAHAN EFEK BARU: GESER KE BAWAH & FLASH HIGHLIGHT KUNING ---
-        // Menghapus class lama jika sebelumnya sudah ada (agar animasi bisa di-trigger ulang)
         previewBox.classList.remove('flash-highlight');
-        // Trigger reflow untuk me-restart animasi CSS
         void previewBox.offsetWidth; 
-        // Menambahkan class animasi flash
         previewBox.classList.add('flash-highlight');
 
-        // Scroll layar secara halus menuju ke elemen previewBox
         previewBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Sembunyikan preview gambar lama setiap kali membuat teks laporan baru
+        document.getElementById('imagePreviewContainer').style.display = 'none';
     }
 
     function copyKeClipboard() {
@@ -1227,6 +1251,181 @@
         }
         
         selection.removeAllRanges();
+    }
+
+    // --- EDIT FUNGSI GENERATE GAMBAR: MERUBAH TAMPILAN MENJADI FORM LAPORAN ESKLUSIF ---
+    function generateGambar() {
+        const previewBox = document.getElementById('previewBox');
+        if (!previewBox.classList.contains('generated')) {
+            alert("Silakan generate laporan terlebih dahulu!");
+            return;
+        }
+
+        const text = previewBox.innerText;
+        const lines = text.split('\n');
+        
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Pengaturan layout form laporan
+        const fontSize = 14;
+        const lineHeight = 24;
+        const padding = 30;
+        
+        // Titik X koordinat pengunci untuk meluruskan titik dua (:) dan value seperti fungsi TAB
+        const colonX = 200;
+        const valueX = 215;
+        
+        // Penghitungan tinggi canvas dinamis agar pas dengan isi laporan
+        let estimatedHeight = padding * 2;
+        lines.forEach((line, index) => {
+            let textLine = line.trim();
+            if (textLine === "") {
+                estimatedHeight += 12;
+            } else {
+                if (index === 0) {
+                    estimatedHeight += 28;
+                } else if (textLine.replace(/\*/g, '').trim() && !textLine.includes(':') && line.includes('*')) {
+                    estimatedHeight += lineHeight + 6; // Spasi extra untuk penanda judul section baru
+                } else {
+                    estimatedHeight += lineHeight;
+                }
+            }
+        });
+        
+        canvas.width = 560;
+        canvas.height = estimatedHeight + 10;
+        
+        // Background Form putih bersih mewah
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Aksen garis tebal hijau di paling atas pelengkap estetika form laporan perusahaan
+        ctx.fillStyle = "#1e4620";
+        ctx.fillRect(0, 0, canvas.width, 6);
+        
+        let currentY = padding;
+        
+        lines.forEach((line, index) => {
+            let textLine = line.trim();
+            if (textLine === "") {
+                currentY += 12;
+                return;
+            }
+            
+            // Cek deteksi tanda bintang (*) untuk menebalkan teks tulisan asli form
+            let isBold = false;
+            if (line.includes('*')) {
+                isBold = true;
+                textLine = line.replace(/\*/g, '').trim(); // Hilangkan simbol bintang dari visual gambar
+            }
+            
+            ctx.fillStyle = "#2d3748"; // Warna teks abu gelap profesional (tidak hitam kaku baku)
+            if (isBold) {
+                ctx.font = "bold " + fontSize + "px 'Segoe UI', Arial, sans-serif";
+                ctx.fillStyle = "#1a202c";
+            } else {
+                ctx.font = "500 " + fontSize + "px 'Segoe UI', Arial, sans-serif";
+            }
+            
+            // Render khusus untuk Judul Utama Laporan di baris pertama
+            if (index === 0) {
+                ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
+                ctx.fillStyle = "#1e4620";
+                ctx.fillText(textLine, padding, currentY);
+                currentY += 28;
+                
+                // Tambahkan pembatas tipis elegan di bawah judul utama
+                ctx.strokeStyle = "#e2e8f0";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(padding, currentY - 8);
+                ctx.lineTo(canvas.width - padding, currentY - 8);
+                ctx.stroke();
+                return;
+            }
+            
+            // Render khusus untuk Sub Judul Section Kategori (seperti Reject MHW, Hasil MHW, dsb)
+            if (isBold && !textLine.includes(':') && (textLine.includes('Reject') || textLine.includes('Hasil') || textLine.includes('Sampel') || textLine.includes('KENDALA'))) {
+                currentY += 6;
+                ctx.font = "bold " + (fontSize + 2) + "px 'Segoe UI', Arial, sans-serif";
+                ctx.fillStyle = "#1e4620";
+                ctx.fillText(textLine, padding, currentY);
+                currentY += lineHeight;
+                return;
+            }
+            
+            // PROSES PEMISAHAN & PENJAJARAN TABULASI TITIK DUA (:) 
+            if (textLine.includes(':')) {
+                let colonIndex = textLine.indexOf(':');
+                let label = textLine.substring(0, colonIndex).trim();
+                let value = textLine.substring(colonIndex + 1).trim();
+                
+                let startX = padding;
+                // Buat struktur sub-kondisi berindentasi rapi ke dalam jika item memakai tanda strip (-)
+                if (line.trim().startsWith('-')) {
+                    startX = padding + 15; 
+                    if (label.startsWith('-')) {
+                        label = label.substring(1).trim();
+                    }
+                }
+                
+                // Gambar Label Kiri
+                ctx.fillText(label, startX, currentY);
+                
+                // Kunci posisi gambar titik dua (:) pas sejajar ke bawah di koordinat X yang ditentukan
+                ctx.font = "bold " + fontSize + "px 'Segoe UI', Arial, sans-serif";
+                ctx.fillText(":", colonX, currentY);
+                
+                // Gambar Nilai Data di sebelah kanan dari titik dua (:) secara presisi
+                if (isBold) {
+                    ctx.font = "bold " + fontSize + "px 'Segoe UI', Arial, sans-serif";
+                } else {
+                    ctx.font = "500 " + fontSize + "px 'Segoe UI', Arial, sans-serif";
+                }
+                ctx.fillText(value, valueX, currentY);
+            } else {
+                // Gambar baris biasa non titik dua (seperti Tanggal Hari atau isi detail Kendala lapangan)
+                let startX = padding;
+                if (line.trim().startsWith('-')) {
+                    startX = padding + 15;
+                    if (textLine.startsWith('-')) {
+                        textLine = textLine.substring(1).trim();
+                    }
+                    ctx.fillText("• " + textLine, startX, currentY);
+                } else {
+                    ctx.fillText(textLine, startX, currentY);
+                }
+            }
+            
+            currentY += lineHeight;
+        });
+        
+        const namaMesin = document.getElementById('mesin').value || 'MHW';
+        const namaProduk = document.getElementById('produk').value || 'Produk';
+        
+        currentImageFileName = `Laporan_${namaMesin}_${namaProduk.replace(/\s+/g, '_')}.jpg`;
+        currentImageBlobUrl = canvas.toDataURL('image/jpeg', 1.0);
+
+        const imgOutput = document.getElementById('imageOutput');
+        imgOutput.src = currentImageBlobUrl;
+        
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        previewContainer.style.display = 'block';
+
+        previewContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // --- FUNGSI BARU: DIJALANKAN SAAT TOMBOL DOWNLOAD GAMBAR DIKLIK ---
+    function downloadGambarGenerated() {
+        if (!currentImageBlobUrl) {
+            alert("Gambar belum siap!");
+            return;
+        }
+        const link = document.createElement('a');
+        link.download = currentImageFileName;
+        link.href = currentImageBlobUrl;
+        link.click();
     }
 </script>
 
