@@ -110,10 +110,10 @@
         }
         .input-with-unit .unit-text {
             font-size: 14px;
-            font-weight: normal; /* EDIT: Dibuat tidak bold */
+            font-weight: normal; 
             color: #4a5568;
             min-width: 35px;
-            text-align: right; /* EDIT: Rata kanan */
+            text-align: right; 
         }
         .form-group input[readonly] {
             background-color: #edf2f7;
@@ -131,7 +131,6 @@
             font-weight: bold;
             transition: box-shadow 0.3s ease, border-color 0.3s ease;
         }
-        /* PERUBAHAN: Membuat teks placeholder menjadi tidak bold & berwarna abu-abu standar */
         #total_packing_input::placeholder {
             font-weight: normal !important;
             color: #a0aec0 !important;
@@ -203,15 +202,15 @@
             display: inline-block;
         }
         .btn-gen:hover, .btn-copy:hover, .btn-wa-leader:hover { background-color: #20ba5a; }
+        
         .btn-copy {
             display: none;
-            margin: 15px auto 0 auto;
+            margin: 0;
         }
-        /* Styling khusus tombol generate gambar */
         .btn-gambar {
             display: none;
-            margin: 10px auto 0 auto;
-            background-color: #1e4620; /* Menggunakan warna hijau gelap senada dengan tema judul */
+            margin: 0;
+            background-color: #1e4620; 
             box-shadow: 0 4px 6px rgba(30, 70, 32, 0.2);
         }
         .btn-gambar:hover { background-color: #143016; }
@@ -236,14 +235,13 @@
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
-            transition: background-color 0.5s ease; /* Transisi halus untuk efek flash */
+            transition: background-color 0.5s ease; 
         }
         .preview-box.generated {
             color: #333;
             text-align: left;
             display: block;
         }
-        /* Efek Flash Kuning */
         @keyframes flashYellow {
             0% { background-color: #fff9c4; border-color: #fbc02d; }
             100% { background-color: #f8f9fa; border-color: #cbd5e0; }
@@ -292,7 +290,6 @@
             width: auto;
             cursor: pointer;
         }
-        /* Style pembungkus grup reject dengan persentase di kanan */
         .reject-input-group {
             display: flex;
             width: 60%;
@@ -305,13 +302,65 @@
             width: 35%;
             text-align: center;
         }
-        /* Style untuk teks info tanggal di sebelah kanan input batch */
         .batch-date-text {
             font-size: 14px;
             color: #4a5568;
             width: 30%;
             text-align: right;
             white-space: nowrap;
+        }
+
+        /* --- STYLE KUSTOM UNTUK NOTIFIKASI MODAL (BACKGROUND HITAM TRANSPARAN) --- */
+        .custom-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .custom-modal-box {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: fadeInModal 0.25s ease-out;
+        }
+        @keyframes fadeInModal {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .custom-modal-text {
+            font-size: 15px;
+            color: #2d3748;
+            margin-bottom: 22px;
+            line-height: 1.6;
+            font-weight: 500;
+            white-space: pre-line;
+        }
+        .custom-modal-btn {
+            background-color: #25d366;
+            color: white;
+            border: none;
+            padding: 10px 35px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2);
+            transition: background 0.2s;
+        }
+        .custom-modal-btn:hover {
+            background-color: #20ba5a;
         }
     </style>
 </head>
@@ -328,7 +377,7 @@
     <div class="form-group">
         <label>Nama Mesin</label>
         <select id="mesin" onchange="updateLabelMesin()">
-            <option value="" selected disabled>-- pilih mesin --</option>
+            <option value="" selected="" disabled="">-- pilih mesin --</option>
             <option value="MHW-3">MHW-3</option>
             <option value="MHW-4">MHW-4</option>
             <option value="MHC">MHC</option>
@@ -336,21 +385,7 @@
     </div>
     <div class="form-group">
         <label>Nama Produk</label>
-        <select id="produk" onchange="eksekusiPerubahanProduk()">
-            <option value="" disabled selected>-- pilih produk --</option>
-            <option value="Salam Bakso Ayam 500 gr">Salam Bakso Ayam 500 gr</option>
-            <option value="Salam Bakso Kerikil 500 gr">Salam Bakso Kerikil 500 gr</option>
-            <option value="Salam Bakso Sapi Banded 100 gr">Salam Bakso Sapi Banded 100 gr</option>
-            <option value="Salam Bakso Kerikil Banded 100 gr">Salam Bakso Kerikil Banded 100 gr</option>
-            <option value="Salam Naget 250 gr">Salam Naget 250 gr</option>
-            <option value="Salam Naget 500 gr">Salam Naget 500 gr</option>
-            <option value="Salam Naget 1000 gr">Salam Naget 1000 gr</option>
-            <option value="Salam Naget Stik 250 gr">Salam Naget Stik 250 gr</option>
-            <option value="Salam Naget Stik 500 gr">Salam Naget Stik 500 gr</option>
-            <option value="Salam Naget Stik 1000 gr">Salam Naget Stik 1000 gr</option>
-            <option value="Salam Naget Hati 500 gr">Salam Naget Hati 500 gr</option>
-            <option value="Salam Naget Hati 1000 gr">Salam Naget Hati 1000 gr</option>
-        </select>
+        <select id="produk" onchange="eksekusiPerubahanProduk()"><option value="" disabled="" selected="">-- pilih produk --</option><option value="Salam Bakso Ayam 500 gr">Salam Bakso Ayam 500 gr</option><option value="Salam Bakso Kerikil 500 gr">Salam Bakso Kerikil 500 gr</option><option value="Salam Bakso Sapi Banded 100 gr">Salam Bakso Sapi Banded 100 gr</option><option value="Salam Bakso Kerikil Banded 100 gr">Salam Bakso Kerikil Banded 100 gr</option><option value="Salam Naget 250 gr">Salam Naget 250 gr</option><option value="Salam Naget 500 gr">Salam Naget 500 gr</option><option value="Salam Naget 1000 gr">Salam Naget 1000 gr</option><option value="Salam Naget Stik 250 gr">Salam Naget Stik 250 gr</option><option value="Salam Naget Stik 500 gr">Salam Naget Stik 500 gr</option><option value="Salam Naget Stik 1000 gr">Salam Naget Stik 1000 gr</option><option value="Salam Naget Hati 500 gr">Salam Naget Hati 500 gr</option><option value="Salam Naget Hati 1000 gr">Salam Naget Hati 1000 gr</option><option value="Kamil French Fries Shoestring 1000">Kamil French Fries Shoestring 1000</option></select>
     </div>
     <div class="form-group">
         <label>Tanggal</label>
@@ -360,7 +395,7 @@
         <label>Shift / Grup</label>
         <div style="display: flex; width: 60%; gap: 10px;">
             <select id="shift_select" style="width: 50%;">
-                <option value="1" selected>1</option>
+                <option value="1" selected="">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
             </select>
@@ -382,7 +417,7 @@
         </div>
     </div>
     
-    <div class="form-group" id="row_mhw_2">
+    <div class="form-group" id="row_mhw_2" style="display: flex;">
         <label id="lbl_mhw_2">E2</label>
         <div class="input-with-unit">
             <input type="number" id="mhw_e2" placeholder="0" min="0" oninput="hitungOtomatisJumlah()">
@@ -390,10 +425,10 @@
         </div>
     </div>
     
-    <div class="form-group" id="row_mhw_jumlah">
+    <div class="form-group" id="row_mhw_jumlah" style="display: flex;">
         <label>Jumlah</label>
         <div class="input-with-unit">
-            <input type="number" id="mhw_jumlah" value="0" readonly>
+            <input type="number" id="mhw_jumlah" value="0" readonly="">
             <span class="unit-text">pack</span>
         </div>
     </div>
@@ -401,7 +436,7 @@
     <div class="form-group" id="row_total_packing_pack">
         <label>Total packing</label>
         <div class="input-with-unit">
-            <input type="number" id="total_packing_pack" value="0" readonly>
+            <input type="number" id="total_packing_pack" value="0" readonly="">
             <span class="unit-text">pack</span>
         </div>
     </div>
@@ -421,64 +456,64 @@
         <label>Horizontal</label>
         <div class="reject-input-group">
             <input type="number" id="rej_horizontal" placeholder="0" min="0" oninput="hitungTotalRejectDulu()">
-            <input type="text" id="pct_horizontal" class="pct-box" value="0%" readonly>
+            <input type="text" id="pct_horizontal" class="pct-box" value="0%" readonly="">
         </div>
     </div>
     <div class="form-group">
         <label>Vertical</label>
         <div class="reject-input-group">
             <input type="number" id="rej_vertical" placeholder="0" min="0" oninput="hitungTotalRejectDulu()">
-            <input type="text" id="pct_vertical" class="pct-box" value="0%" readonly>
+            <input type="text" id="pct_vertical" class="pct-box" value="0%" readonly="">
         </div>
     </div>
     <div class="form-group">
         <label>Lubang</label>
         <div class="reject-input-group">
             <input type="number" id="rej_lubang" placeholder="0" min="0" oninput="hitungTotalRejectDulu()">
-            <input type="text" id="pct_lubang" class="pct-box" value="0%" readonly>
+            <input type="text" id="pct_lubang" class="pct-box" value="0%" readonly="">
         </div>
     </div>
     <div class="form-group">
         <label>Setting</label>
         <div class="reject-input-group">
             <input type="number" id="rej_setting" placeholder="0" min="0" oninput="hitungTotalRejectDulu()">
-            <input type="text" id="pct_setting" class="pct-box" value="0%" readonly>
+            <input type="text" id="pct_setting" class="pct-box" value="0%" readonly="">
         </div>
     </div>
     <div class="form-group">
         <label>Over</label>
         <div class="reject-input-group">
             <input type="number" id="rej_over" placeholder="0" min="0" oninput="hitungTotalRejectDulu()">
-            <input type="text" id="pct_over" class="pct-box" value="0%" readonly>
+            <input type="text" id="pct_over" class="pct-box" value="0%" readonly="">
         </div>
     </div>
     <div class="form-group">
         <label>Under</label>
         <div class="reject-input-group">
             <input type="number" id="rej_under" placeholder="0" min="0" oninput="hitungTotalRejectDulu()">
-            <input type="text" id="pct_under" class="pct-box" value="0%" readonly>
+            <input type="text" id="pct_under" class="pct-box" value="0%" readonly="">
         </div>
     </div>
     <div class="form-group">
         <label>Crash</label>
         <div class="reject-input-group">
             <input type="number" id="rej_crash" placeholder="0" min="0" oninput="hitungTotalRejectDulu()">
-            <input type="text" id="pct_crash" class="pct-box" value="0%" readonly>
+            <input type="text" id="pct_crash" class="pct-box" value="0%" readonly="">
         </div>
     </div>
     <div class="form-group">
         <label>Terlipat</label>
         <div class="reject-input-group">
             <input type="number" id="rej_terlipat" placeholder="0" min="0" oninput="hitungTotalRejectDulu()">
-            <input type="text" id="pct_terlipat" class="pct-box" value="0%" readonly>
+            <input type="text" id="pct_terlipat" class="pct-box" value="0%" readonly="">
         </div>
     </div>
     
     <div class="form-group">
         <label style="font-weight: bold;">Total reject</label>
         <div class="reject-input-group">
-            <input type="number" id="rej_total_auto" value="0" readonly style="font-weight: bold;">
-            <input type="text" id="pct_total" class="pct-box" value="0%" readonly style="font-weight: bold;">
+            <input type="number" id="rej_total_auto" value="0" readonly="" style="font-weight: bold;">
+            <input type="text" id="pct_total" class="pct-box" value="0%" readonly="" style="font-weight: bold;">
         </div>
     </div>
 
@@ -486,7 +521,7 @@
     <div class="form-group">
         <label>Ada Sampel ?</label>
         <div class="radio-group">
-            <label><input type="radio" name="opt_vp" value="ya" checked onchange="toggleInputVP()"> Ya</label>
+            <label><input type="radio" name="opt_vp" value="ya" checked="" onchange="toggleInputVP()"> Ya</label>
             <label><input type="radio" name="opt_vp" value="tidak" onchange="toggleInputVP()"> Tidak</label>
         </div>
     </div>
@@ -494,7 +529,7 @@
         <div class="form-group"><label>Sedikit</label><input type="number" id="sam_sedikit" placeholder="0" min="0" oninput="hitungOtomatisOke()"></div>
         <div class="form-group"><label>Sedang</label><input type="number" id="sam_sedang" placeholder="0" min="0" oninput="hitungOtomatisOke()"></div>
         <div class="form-group"><label>Banyak</label><input type="number" id="sam_banyak" placeholder="0" min="0" oninput="hitungOtomatisOke()"></div>
-        <div class="form-group"><label>Oke</label><input type="number" id="sam_oke" value="100" readonly></div>
+        <div class="form-group"><label>Oke</label><input type="number" id="sam_oke" value="100" readonly=""></div>
     </div>
 
     <div class="section-title">Data Tambahan</div>
@@ -502,7 +537,7 @@
         <label>Tinggalan</label>
         <div class="radio-group">
             <label><input type="radio" name="opt_tinggalan" value="ada" onchange="toggleInputTinggalan()"> Ada</label>
-            <label><input type="radio" name="opt_tinggalan" value="tidak" checked onchange="toggleInputTinggalan()"> Tidak ada</label>
+            <label><input type="radio" name="opt_tinggalan" value="tidak" checked="" onchange="toggleInputTinggalan()"> Tidak ada</label>
         </div>
     </div>
     <div class="form-group" id="row_batch_tinggalan" style="display: none;">
@@ -511,7 +546,7 @@
             <input type="number" id="tinggalan_batch_awal" placeholder="001" style="width: 30%;" inputmode="numeric" onblur="formatPaddingBatch(this)">
             <span>-</span>
             <input type="number" id="tinggalan_batch_akhir" placeholder="002" style="width: 30%;" inputmode="numeric" onblur="formatPaddingBatch(this)">
-            <span id="tanggal_batch_tinggalan" class="batch-date-text"></span>
+            <span id="tanggal_batch_tinggalan" class="batch-date-text">tgl 6</span>
         </div>
     </div>
 
@@ -521,7 +556,7 @@
             <input type="number" id="batch_awal" placeholder="001" style="width: 30%;" inputmode="numeric" onblur="formatPaddingBatch(this)">
             <span>-</span>
             <input type="number" id="batch_akhir" placeholder="002" style="width: 30%;" inputmode="numeric" onblur="formatPaddingBatch(this)">
-            <span id="tanggal_batch_normal" class="batch-date-text"></span>
+            <span id="tanggal_batch_normal" class="batch-date-text">tgl 7</span>
         </div>
     </div>
 
@@ -529,7 +564,7 @@
         <label>Kode-3</label>
         <div class="radio-group">
             <label><input type="radio" name="opt_kode3" value="ada" onchange="toggleInputKode3()"> Ada</label>
-            <label><input type="radio" name="opt_kode3" value="tidak" checked onchange="toggleInputKode3()"> Tidak ada</label>
+            <label><input type="radio" name="opt_kode3" value="tidak" checked="" onchange="toggleInputKode3()"> Tidak ada</label>
         </div>
     </div>
     <div class="form-group" id="row_batch_kode3" style="display: none;">
@@ -545,7 +580,7 @@
     <div class="form-group">
         <label>Pemakaian VP</label>
         <select id="pakai_vp" style="width: 60%;">
-        </select>
+        <option value="0 Roll">0 Roll</option><option value="1 Roll">1 Roll</option><option value="2 Roll">2 Roll</option><option value="3 Roll">3 Roll</option><option value="4 Roll">4 Roll</option><option value="5 Roll">5 Roll</option><option value="6 Roll">6 Roll</option><option value="7 Roll">7 Roll</option><option value="8 Roll">8 Roll</option><option value="9 Roll">9 Roll</option><option value="10 Roll">10 Roll</option></select>
     </div>
     <div class="form-group" id="row_kendala_form" style="display: block; margin-bottom: 20px;">
         <label style="width: 100%; display: block; margin-bottom: 8px;">Kendala</label>
@@ -566,11 +601,11 @@
 
     <div class="preview-box" id="previewBox">Hasil generate akan muncul disini...</div>
     
-    <button type="button" class="btn-copy" id="btnCopy" onclick="copyKeClipboard()">📋 Copy ke Clipboard</button>
-    <!-- TAMBAHAN: Tombol Generate Gambar berada di bawah tombol copy -->
-    <button type="button" class="btn-gambar" id="btnGambar" onclick="generateGambar()">🖼️ Generate Gambar</button>
+    <div id="actionButtonsContainer" style="display: none; justify-content: center; gap: 10px; margin-top: 15px; width: 100%;">
+        <button type="button" class="btn-copy" id="btnCopy" onclick="copyKeClipboard()">📋 Copy ke Clipboard</button>
+        <button type="button" class="btn-gambar" id="btnGambar" onclick="generateGambar()">🖼️ Generate Gambar</button>
+    </div>
 
-    <!-- EDIT/TAMBAHAN: Tempat untuk menampilkan gambar hasil generate beserta tombol unduhnya -->
     <div id="imagePreviewContainer" style="display: none; text-align: center; margin-top: 20px; padding: 15px; border: 1px dashed #25d366; border-radius: 8px; background: #fafafa;">
         <p style="font-weight: bold; color: #1e4620; margin-top: 0; font-size: 14px;">🖼️ Preview Gambar Hasil Generate:</p>
         <img id="imageOutput" src="" alt="Laporan Gambar" style="max-width: 100%; border: 1px solid #cbd5e0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 6px; background: #fff;">
@@ -585,7 +620,7 @@
     <div class="form-group">
         <label>Nama Leader</label>
         <select id="pilih_leader" onchange="updateLeaderWhatsApp()">
-            <option value="" selected disabled>-- pilih leader --</option>
+            <option value="" selected="" disabled="">-- pilih leader --</option>
             <option value="diajeng">Diajeng</option>
             <option value="aris">Aris</option>
         </select>
@@ -598,11 +633,26 @@
 
 <div class="toast" id="toast">Laporan berhasil disalin!</div>
 
+<div id="customModal" class="custom-modal-overlay">
+    <div class="custom-modal-box">
+        <div id="customModalText" class="custom-modal-text"></div>
+        <div id="modalBtnContainer" style="display: flex; justify-content: center; gap: 15px;">
+            <button type="button" id="customModalBtnSingle" class="custom-modal-btn" onclick="handleModalClick()">oke</button>
+            <button type="button" id="customModalBtnAda" class="custom-modal-btn" style="display: none; background-color: #4a5568; box-shadow: 0 4px 6px rgba(74, 85, 104, 0.2);" onclick="handleModalAda()">ada</button>
+            <button type="button" id="customModalBtnTidak" class="custom-modal-btn" style="display: none;" onclick="handleModalTidak()">tidak ada</button>
+        </div>
+    </div>
+</div>
+
 <script>
     let listProdukAsli = [];
-    // Variabel global baru untuk menyimpan data gambar ter-generate
     let currentImageBlobUrl = "";
     let currentImageFileName = "";
+
+    // Variabel penanda konfirmasi notifikasi kustom
+    let vpWarningConfirmed = false;
+    let kendalaWarningConfirmed = false;
+    let currentModalCallback = null;
 
     window.onload = function() {
         const hariIni = new Date().toISOString().split('T')[0];
@@ -630,6 +680,50 @@
         updateLabelMesin();
         updateOtomatisTanggalBatch();
     };
+
+    function showCustomModal(text, callback, type = 'single') {
+        document.getElementById('customModalText').innerHTML = text;
+        
+        const btnSingle = document.getElementById('customModalBtnSingle');
+        const btnAda = document.getElementById('customModalBtnAda');
+        const btnTidak = document.getElementById('customModalBtnTidak');
+        
+        if (type === 'dual') {
+            btnSingle.style.display = 'none';
+            btnAda.style.display = 'inline-block';
+            btnTidak.style.display = 'inline-block';
+        } else {
+            btnSingle.style.display = 'inline-block';
+            btnAda.style.display = 'none';
+            btnTidak.style.display = 'none';
+        }
+        
+        document.getElementById('customModal').style.display = 'flex';
+        currentModalCallback = callback;
+    }
+
+    function handleModalClick() {
+        document.getElementById('customModal').style.display = 'none';
+        if (currentModalCallback) {
+            currentModalCallback();
+        }
+    }
+
+    function handleModalAda() {
+        document.getElementById('customModal').style.display = 'none';
+        const firstKendalaInput = document.querySelector('.input-kendala');
+        if (firstKendalaInput) {
+            firstKendalaInput.focus();
+            firstKendalaInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function handleModalTidak() {
+        document.getElementById('customModal').style.display = 'none';
+        if (currentModalCallback) {
+            currentModalCallback();
+        }
+    }
 
     function updateOtomatisTanggalBatch() {
         const inputTanggalUmum = document.getElementById('tanggal_pilih').value;
@@ -679,13 +773,13 @@
             optDefault.value = "";
             optDefault.text = "-- pilih produk --";
             optDefault.disabled = true;
-            optDefault.selected = true; // Diubah ke true agar default berada pada pilihan ini
+            optDefault.selected = true; 
             produkSelect.appendChild(optDefault);
 
             let optMhc = document.createElement('option');
             optMhc.value = "Salam Bakso Sapi Banded 100 gr";
             optMhc.text = "Salam Bakso Sapi Banded 100 gr";
-            optMhc.selected = false; // Diubah ke false agar pengguna memilih secara manual
+            optMhc.selected = false; 
             produkSelect.appendChild(optMhc);
         } else {
             produkSelect.innerHTML = "";
@@ -694,10 +788,11 @@
                 opt.value = item.value;
                 opt.text = item.text;
                 opt.disabled = item.disabled;
-                if (mesin === "") {
-                    opt.selected = (item.value === "");
+                // Kunci pilihan produk ke placeholder default agar user memilih sendiri
+                if (item.value === "") {
+                    opt.selected = true;
                 } else {
-                    opt.selected = item.selected;
+                    opt.selected = false;
                 }
                 produkSelect.appendChild(opt);
             });
@@ -751,8 +846,8 @@
         const totalPackingInput = parseInt(document.getElementById('total_packing_input').value) || 0;
         const totalReject = parseInt(document.getElementById('rej_total_auto').value) || 0;
         
-        const txtBoxE1 = document.getElementById('mhw_e1'); // C1 / E1 / Hasil MHC
-        const txtBoxE2 = document.getElementById('mhw_e2'); // C2 / E2
+        const txtBoxE1 = document.getElementById('mhw_e1'); 
+        const txtBoxE2 = document.getElementById('mhw_e2'); 
         
         if (mesin === "MHC" || ((mesin === "MHW-3" || mesin === "MHW-4") && produk.includes("100 gr"))) {
             const totalPackingMHC = totalPackingInput * 60;
@@ -765,27 +860,28 @@
                 txtBoxE1.readOnly = true; 
                 txtBoxE1.value = hasilMHCVal;
             } else {
-                // --- PERUBAHAN: Tetap terapkan aturan khusus open input MHW-3 (C1) dan MHW-4 (E2) ---
                 if (mesin === "MHW-3") {
-                    txtBoxE2.readOnly = true;  // C2 Readonly
-                    txtBoxE1.readOnly = false; // C1 Terbuka (Tidak Readonly)
+                    txtBoxE2.readOnly = true;  
+                    txtBoxE1.readOnly = false; 
                     const c1 = parseInt(txtBoxE1.value) || 0;
                     txtBoxE2.value = hasilMHCVal - c1;
                 } else if (mesin === "MHW-4") {
-                    txtBoxE1.readOnly = true;  // E1 Readonly
-                    txtBoxE2.readOnly = false; // E2 Terbuka (Tidak Readonly)
+                    txtBoxE1.readOnly = true;  
+                    txtBoxE2.readOnly = false; 
                     const e2 = parseInt(txtBoxE2.value) || 0;
                     txtBoxE1.value = hasilMHCVal - e2;
                 }
             }
 
-        } else if ((mesin === "MHW-3" || mesin === "MHW-4") && produk.includes("Naget")) {
+        } else if ((mesin === "MHW-3" || mesin === "MHW-4") && (produk.includes("Naget") || produk.includes("Kamil"))) {
             let pengaliNaget = 12;
             if (produk.includes("250 gr")) {
                 pengaliNaget = 20;
             } else if (produk.includes("500 gr")) {
                 pengaliNaget = 10;
             } else if (produk.includes("1000 gr")) {
+                pengaliNaget = 5;
+            } else if (produk.includes("Kamil")) {
                 pengaliNaget = 5;
             }
 
@@ -795,15 +891,14 @@
             const jumlahNagetVal = totalPackingNaget + totalReject;
             document.getElementById('mhw_jumlah').value = jumlahNagetVal;
 
-            // --- PERUBAHAN: Aturan ini berlaku untuk semua gramasi Naget ---
             if (mesin === "MHW-3") {
-                txtBoxE2.readOnly = true;  // C2 Readonly
-                txtBoxE1.readOnly = false; // C1 Terbuka (Tidak Readonly)
+                txtBoxE2.readOnly = true;  
+                txtBoxE1.readOnly = false; 
                 const c1 = parseInt(txtBoxE1.value) || 0;
                 txtBoxE2.value = jumlahNagetVal - c1;
             } else if (mesin === "MHW-4") {
-                txtBoxE1.readOnly = true;  // E1 Readonly
-                txtBoxE2.readOnly = false; // E2 Terbuka (Tidak Readonly)
+                txtBoxE1.readOnly = true;  
+                txtBoxE2.readOnly = false; 
                 const e2 = parseInt(txtBoxE2.value) || 0;
                 txtBoxE1.value = jumlahNagetVal - e2;
             }
@@ -813,15 +908,14 @@
             document.getElementById('mhw_jumlah').value = jumlahChecker;
             document.getElementById('total_packing_pack').value = jumlahChecker - totalReject;
 
-            // --- PERUBAHAN: Berlaku umum untuk produk lainnya (Bakso 500gr dsb) ---
             if (mesin === "MHW-3") {
-                txtBoxE2.readOnly = true;  // C2 Readonly
-                txtBoxE1.readOnly = false; // C1 Terbuka (Tidak Readonly)
+                txtBoxE2.readOnly = true;  
+                txtBoxE1.readOnly = false; 
                 const c1 = parseInt(txtBoxE1.value) || 0;
                 txtBoxE2.value = jumlahChecker - c1;
             } else if (mesin === "MHW-4") {
-                txtBoxE1.readOnly = true;  // E1 Readonly
-                txtBoxE2.readOnly = false; // E2 Terbuka (Tidak Readonly)
+                txtBoxE1.readOnly = true;  
+                txtBoxE2.readOnly = false; 
                 const e2 = parseInt(txtBoxE2.value) || 0;
                 txtBoxE1.value = jumlahChecker - e2;
             } else {
@@ -906,6 +1000,7 @@
 
     function dapatkanIsiPerCtn(produk) {
         if (!produk) return 24; 
+        if (produk.includes("Kamil")) return 5;
         if (produk.includes("1000 gr")) return 12; 
         if (produk.includes("500 gr")) return 24;  
         if (produk.includes("250 gr")) return 48;  
@@ -957,7 +1052,6 @@
         }
     }
 
-    /* --- EDIT: REVISI FORMAT PERSEN KOSONG JADI LEBIH LEBAR (  -  %) --- */
     function formatNilai(nilai, persentase = false, totalMHW = 1) {
         if (nilai === 0 || nilai === '' || isNaN(nilai)) {
             return persentase ? '  -  %' : '- pcs';
@@ -1031,26 +1125,71 @@
         }
     }
 
-    function generateWA() {
+    /* --- REVISI ALUR GENERATE WA: VALIDASI BERURUTAN & TIDAK TUMPANG TINDIH --- */
+    function generateWA(isContinuation) {
+        // Jika dipicu tombol utama (bukan kelanjutan klik oke), reset status konfirmasi opsional kendala saja
+        if (isContinuation !== true) {
+            kendalaWarningConfirmed = false;
+        }
+
         const produkSelect = document.getElementById('produk');
         const produk = produkSelect.value;
         const mesin = document.getElementById('mesin').value;
         const totalPackingInput = document.getElementById('total_packing_input').value.trim();
         
         if (!mesin) {
-            alert("Silakan pilih mesin terlebih dahulu!");
+            showCustomModal("Silakan pilih mesin terlebih dahulu!", null);
             return;
         }
         if (!produk) {
-            alert("Silakan pilih produk terlebih dahulu!");
+            showCustomModal("Silakan pilih produk terlebih dahulu!", null);
             return;
         }
         
-        // Validasi penambahan pesan jika total transfer belum diinput
         if (totalPackingInput === "") {
-            alert("Silahkan tanya checker terlebih dahulu hasil transfernya berapa!\nJangan terburu-buru untuk pulang !!!");
+            showCustomModal("Silahkan tanya checker terlebih dahulu hasil transfernya berapa ?!\nJangan terburu-buru untuk pulang !!!", null);
             return;
         }
+
+        const bAwal = document.getElementById('batch_awal').value.trim();
+        const bAkhir = document.getElementById('batch_akhir').value.trim();
+        if (!bAwal && !bAkhir) {
+            showCustomModal("Pastikan telah mengisi no.batchnya !!!", null);
+            return;
+        }
+
+        const pakai_vp = document.getElementById('pakai_vp').value;
+        if ((pakai_vp === "0 Roll" || pakai_vp === "0") && !vpWarningConfirmed) {
+            showCustomModal("apa kamu yakin tidak memakai vproll sama sekali ?", function() {
+                vpWarningConfirmed = true;
+                const selectVP = document.getElementById('pakai_vp');
+                if (selectVP) {
+                    selectVP.focus();
+                    selectVP.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+            return;
+        }
+
+        const inputKendalaArr = document.getElementsByClassName('input-kendala');
+        let kendalaListCheck = [];
+        for (let i = 0; i < inputKendalaArr.length; i++) {
+            let isi = inputKendalaArr[i].value.trim();
+            if (isi) {
+                kendalaListCheck.push(isi);
+            }
+        }
+        
+        if (kendalaListCheck.length === 0 && !kendalaWarningConfirmed) {
+            showCustomModal("kamu yakin seharian kerja mesinmu tanpa kendala ?", function() {
+                kendalaWarningConfirmed = true;
+                generateWA(true); // Generate laporan jalan apabila konfirmasi kendala ini telah disetujui (klik tidak ada)
+            }, 'dual');
+            return;
+        }
+
+        // JIKA SEMUA VALIDASI AMAN DAN NOTIFIKASI DIATAS SUDAH SANGGUP DI-OKE-KAN, BARU GENERATE HASIL KELUAR
+        kendalaWarningConfirmed = false;
 
         const rawDate = document.getElementById('tanggal_pilih').value;
         let hari_tgl = "-";
@@ -1080,8 +1219,6 @@
         const hitungTotalPackingPack = parseInt(document.getElementById('total_packing_pack').value) || 0;
         const totalPacking = `${hitungTotalPackingPack} pack`;
 
-        const bAwal = document.getElementById('batch_awal').value.trim();
-        const bAkhir = document.getElementById('batch_akhir').value.trim();
         let no_batch = '-';
         if (bAwal && bAkhir) {
             no_batch = `${bAwal}-${bAkhir}`;
@@ -1118,9 +1255,6 @@
             }
         }
 
-        const pakai_vp = document.getElementById('pakai_vp').value;
-
-        const inputKendalaArr = document.getElementsByClassName('input-kendala');
         let kendalaList = [];
         for (let i = 0; i < inputKendalaArr.length; i++) {
             let isi = inputKendalaArr[i].value.trim();
@@ -1198,18 +1332,16 @@
         previewBox.innerText = textWA;
         previewBox.classList.add('generated');
         
-        document.getElementById('btnCopy').style.display = 'block';
-        // PERUBAHAN: Tampilkan juga tombol generate gambar ketika laporan berhasil dibuat
-        document.getElementById('btnGambar').style.display = 'block';
+        // MENAMPILKAN CONTAINER TOMBOL BERSEBELAHAN
+        document.getElementById('actionButtonsContainer').style.display = 'flex';
+        document.getElementById('btnCopy').style.display = 'inline-block';
+        document.getElementById('btnGambar').style.display = 'inline-block';
 
-        // --- TAMBAHAN EFEK BARU: GESER KE BAWAH & FLASH HIGHLIGHT KUNING ---
         previewBox.classList.remove('flash-highlight');
         void previewBox.offsetWidth; 
         previewBox.classList.add('flash-highlight');
 
         previewBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // Sembunyikan preview gambar lama setiap kali membuat teks laporan baru
         document.getElementById('imagePreviewContainer').style.display = 'none';
     }
 
@@ -1254,7 +1386,6 @@
         selection.removeAllRanges();
     }
 
-    // --- REVISI FUNGSI GENERATE GAMBAR: PROSES RATA KANAN NILAI KOSONG & SPASI LEBAR PERSEN KOSONG ---
     function generateGambar() {
         const previewBox = document.getElementById('previewBox');
         if (!previewBox.classList.contains('generated')) {
@@ -1272,12 +1403,10 @@
         const lineHeight = 24;
         const padding = 30;
         
-        // --- PROSES 1: MENGELOMPOKKAN BARIS DAN MENGHITUNG MATRIKS UKURAN MAKSIMAL PER-SECTION ---
         let lineSectionMapping = [];
         let sectionMetrics = {}; 
         let sectIdx = 0;
         
-        // Tahap A: Pemetaan Baris ke ID Section masing-masing
         lines.forEach((line, index) => {
             let textLine = line.trim();
             if (textLine === "") {
@@ -1304,12 +1433,11 @@
             }
         });
 
-        // Tahap B: Kalkulasi Lebar Label Terpanjang dan Nominal Terbesar secara Mandiri (Lokal Section)
         lines.forEach((line, index) => {
             let mapItem = lineSectionMapping[index];
             let sIdx = mapItem.sectIdx;
             if (!sectionMetrics[sIdx]) {
-                sectionMetrics[sIdx] = { maxLabelWidth: 0, maxNumWidth: 35 }; // default minimum lebar angka 35px agar simetris
+                sectionMetrics[sIdx] = { maxLabelWidth: 0, maxNumWidth: 35 }; 
             }
             
             let textLine = line.trim();
@@ -1348,7 +1476,6 @@
             }
         });
 
-        // Perhitungan tinggi canvas dinamis
         let estimatedHeight = padding * 2;
         lines.forEach((line, index) => {
             let textLine = line.trim();
@@ -1368,17 +1495,14 @@
         canvas.width = 560;
         canvas.height = estimatedHeight + 10;
         
-        // Background Form putih
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Aksen garis tebal hijau di paling atas
         ctx.fillStyle = "#1e4620";
         ctx.fillRect(0, 0, canvas.width, 6);
         
         let currentY = padding;
         
-        // --- PROSES 2: PENGGAMBARAN KE CANVAS MENGGUNAKAN ATURAN BARU ---
         lines.forEach((line, index) => {
             let textLine = line.trim();
             if (textLine === "") {
@@ -1402,7 +1526,6 @@
                 ctx.font = "500 " + fontSize + "px 'Segoe UI', Arial, sans-serif";
             }
             
-            // Render Judul Utama Laporan
             if (index === 0) {
                 ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
                 ctx.fillStyle = "#1e4620";
@@ -1418,7 +1541,6 @@
                 return;
             }
             
-            // Render Sub Judul Section Kategori
             if (isTitleLine) {
                 currentY += 6;
                 ctx.font = "bold " + (fontSize + 2) + "px 'Segoe UI', Arial, sans-serif";
@@ -1428,7 +1550,6 @@
                 return;
             }
             
-            // Ambil metrik kelurusan lokal milik section ini
             let sIdx = lineSectionMapping[index].sectIdx;
             let metrics = sectionMetrics[sIdx] || { maxLabelWidth: 150, maxNumWidth: 35 };
             
@@ -1437,7 +1558,7 @@
             let numberEndX = numberStartX + (metrics.maxNumWidth || 0);
             let unitX = numberEndX + 15;
             
-            ctx.textAlign = "left"; // Reset default alignment canvas
+            ctx.textAlign = "left"; 
 
             if (textLine.includes(':')) {
                 let colonIndex = textLine.indexOf(':');
@@ -1463,13 +1584,11 @@
                     ctx.font = "500 " + fontSize + "px 'Segoe UI', Arial, sans-serif";
                 }
 
-                // Pengkondisian Khusus untuk data bermeter/ber-satuan
                 if (value.includes('pcs')) {
                     let parts = value.split('pcs');
                     let numPart = parts[0].trim();
                     let pctPart = parts[1] ? parts[1].trim() : "";
                     
-                    /* REVISI 1: Tanda kosong (-) dipaksa rata kanan rapat di kordinat numberEndX */
                     ctx.textAlign = "right";
                     ctx.fillText(numPart, numberEndX, currentY);
                     
@@ -1480,7 +1599,6 @@
                 } else if (value.includes('pack')) {
                     let numPart = value.replace('pack', '').trim();
                     
-                    /* REVISI 1: Tanda kosong (-) pack rata kanan */
                     ctx.textAlign = "right";
                     ctx.fillText(numPart, numberEndX, currentY);
                     
@@ -1490,7 +1608,6 @@
                 } else if (value.includes('Roll')) {
                     let numPart = value.replace('Roll', '').trim();
                     
-                    /* REVISI 1: Tanda kosong (-) roll rata kanan */
                     ctx.textAlign = "right";
                     ctx.fillText(numPart, numberEndX, currentY);
                     
@@ -1498,12 +1615,10 @@
                     ctx.fillText("Roll", unitX, currentY);
 
                 } else {
-                    // Untuk text baris umum (Shift, Tanggal, No batch text)
                     ctx.textAlign = "left";
                     ctx.fillText(value, numberStartX, currentY);
                 }
             } else {
-                // Untuk baris catatan kendala yang tidak memiliki tanda titik dua
                 let startX = padding;
                 if (line.trim().startsWith('-')) {
                     startX = padding + 15;
@@ -1519,7 +1634,7 @@
             currentY += lineHeight;
         });
         
-        ctx.textAlign = "left"; // Kembalikan posisi awal ke left alignment
+        ctx.textAlign = "left"; 
         const namaMesin = document.getElementById('mesin').value || 'MHW';
         const namaProduk = document.getElementById('produk').value || 'Produk';
         
@@ -1535,7 +1650,6 @@
         previewContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // --- DIJALANKAN SAAT TOMBOL DOWNLOAD GAMBAR DIKLIK ---
     function downloadGambarGenerated() {
         if (!currentImageBlobUrl) {
             alert("Gambar belum siap!");
