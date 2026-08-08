@@ -380,7 +380,8 @@
             <option value="" selected="" disabled="">-- pilih mesin --</option>
             <option value="MHW-3">MHW-3</option>
             <option value="MHW-4">MHW-4</option>
-            <option value="MHC">MHC</option>
+            <option value="MHC-D1">MHC-D1</option>
+            <option value="MHC-D2">MHC-D2</option>
         </select>
     </div>
     <div class="form-group">
@@ -767,7 +768,7 @@
         document.getElementById('mhw_e1').readOnly = false;
         document.getElementById('mhw_e2').readOnly = false;
 
-        if (mesin === "MHC") {
+        if (mesin === "MHC-D1" || mesin === "MHC-D2") {
             produkSelect.innerHTML = "";
             let optDefault = document.createElement('option');
             optDefault.value = "";
@@ -812,10 +813,10 @@
             lbl2.innerText = "E2";
             row2.style.display = "flex";
             rowJumlah.style.display = "flex";
-        } else if (mesin === "MHC") {
-            titleHasil.innerText = "Hasil MHC (Pack)";
-            titleReject.innerText = "Reject MHC (Pcs)";
-            lbl1.innerText = "Hasil MHC";
+        } else if (mesin === "MHC-D1" || mesin === "MHC-D2") {
+            titleHasil.innerText = "Hasil " + mesin + " (Pack)";
+            titleReject.innerText = "Reject " + mesin + " (Pcs)";
+            lbl1.innerText = "Hasil " + mesin;
             row2.style.display = "none";
             rowJumlah.style.display = "none"; 
             document.getElementById('mhw_e2').value = "";
@@ -849,14 +850,14 @@
         const txtBoxE1 = document.getElementById('mhw_e1'); 
         const txtBoxE2 = document.getElementById('mhw_e2'); 
         
-        if (mesin === "MHC" || ((mesin === "MHW-3" || mesin === "MHW-4") && produk.includes("100 gr"))) {
+        if (mesin === "MHC-D1" || mesin === "MHC-D2" || ((mesin === "MHW-3" || mesin === "MHW-4") && produk.includes("100 gr"))) {
             const totalPackingMHC = totalPackingInput * 60;
             document.getElementById('total_packing_pack').value = totalPackingMHC;
 
             const hasilMHCVal = totalPackingMHC + totalReject;
             document.getElementById('mhw_jumlah').value = hasilMHCVal;
 
-            if (mesin === "MHC") {
+            if (mesin === "MHC-D1" || mesin === "MHC-D2") {
                 txtBoxE1.readOnly = true; 
                 txtBoxE1.value = hasilMHCVal;
             } else {
@@ -942,7 +943,7 @@
         const mesin = document.getElementById('mesin').value;
         const totalReject = parseInt(document.getElementById('rej_total_auto').value) || 0;
 
-        if (mesin === "MHC" || mesin === "MHW-3" || mesin === "MHW-4") {
+        if (mesin === "MHC-D1" || mesin === "MHC-D2" || mesin === "MHW-3" || mesin === "MHW-4") {
             evaluasiAturanGramasi();
             return;
         }
@@ -1271,8 +1272,8 @@
         textWA += `${hari_tgl}\n`;
         textWA += `Shift: ${shiftFull}\n\n`;
         
-        if (mesin === "MHC") {
-            textWA += `*Reject MHC*\n`;
+        if (mesin === "MHC-D1" || mesin === "MHC-D2") {
+            textWA += `*Reject ${mesin}*\n`;
         } else {
             textWA += `*Reject MHW*\n`;
         }
@@ -1286,8 +1287,8 @@
         textWA += `- Terlipat          : ${formatNilai(tlp, false)} (${formatNilai(tlp, true, jumlahMHW)})\n`;
         textWA += `- *Total Reject : ${totalReject} pcs (${formatNilai(totalReject, true, jumlahMHW)})*\n\n`;
 
-        if (mesin === "MHC") {
-            textWA += `*Hasil MHC*\n`;
+        if (mesin === "MHC-D1" || mesin === "MHC-D2") {
+            textWA += `*Hasil ${mesin}*\n`;
             textWA += `- Hasil                   : ${e1} pack\n`;
         } else {
             textWA += `*Hasil MHW*\n`;
