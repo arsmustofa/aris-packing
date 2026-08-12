@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Packing Mobile</title>
+    <style>
+        /* Variabel Warna & Proporsi - Tema Biru Ocean Kalem dengan Header Cerah */
+        :root {
+            --bg-body: #f0f4f8;        /* Latar belakang bersih dengan sentuhan biru muda tipis */
+            --text-dark: #102a43;      /* Biru navy gelap untuk teks utama selain header */
+            --primary: #1982c4;        /* Biru ocean/langit untuk tombol utama */
+            --danger: #e11d48;         /* Merah tegas khusus untuk fungsi hapus */
+            --border-color: #d9e2ec;   /* Border abu-abu kebiruan yang lembut untuk tabel */
+            --header-bg: #bae6fd;      /* Biru langit/ocean yang kalem & cerah untuk background kolom header */
+            --border-header: #90cdf4;  /* Garis pembatas header yang selaras dengan biru muda */
+            --success: #10b981;       /* Hijau untuk tombol laporan */
+            --total-bg: #f0f9ff;       /* Warna biru muda sangat lembut untuk cell total agar tidak gelap solid */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            padding: 15px; /* Margin kecil untuk mobile */
+            font-size: 14px;
+        }
+
+        .container {
+            width: 100%;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid var(--text-dark);
+            padding-bottom: 10px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        /* Kunci agar tidak bertumpuk dan bisa digeser dengan lengkungan siku yang rapi */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto; /* Mengaktifkan geser kanan-kiri */
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fff;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling di iPhone */
+        }
+
+        /* Menggunakan max-content agar lebar tabel mengikuti total pas dari isi kolom */
+        table {
+            width: max-content;
+            min-width: 100%;
+            border-collapse: separate; /* Menggunakan separate agar border-radius tfoot bekerja sempurna */
+            border-spacing: 0;
+        }
+
+        th {
+            background-color: var(--header-bg); /* Menggunakan biru ocean/langit yang cerah dan kalem */
+            color: #000000;                      /* Teks kolom hitam saja sesuai instruksi */
+            font-size: 12px;
+            padding: 10px 8px;
+            text-align: center;
+            vertical-align: middle;              /* Center tengah atas bawah */
+            text-transform: uppercase;
+            border-right: 1px solid var(--border-header);
+            border-bottom: 1px solid var(--border-header);
+        }
+        
+        th:last-child {
+            border-right: none;
+        }
+
+        td {
+            padding: 8px 6px;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            background-color: #ffffff;
+            vertical-align: middle;
+        }
+        
+        td:last-child {
+            border-right: none;
+        }
+
+        /* Menghilangkan border bawah pada baris terakhir tfoot agar radius siku wrapper terlihat rapi */
+        tfoot tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Styling Input tetap full memenuhi kolomnya sendiri */
+        input {
+            width: 100%;
+            padding: 8px 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* Dropdown otomatis mengikuti opsi terpanjang di dalamnya */
+        select {
+            width: max-content;
+            padding: 8px 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* Styling khusus untuk input yang readonly - Warna Biru Muda Kalem */
+        input[readonly] {
+            background-color: #e6effa; /* Biru langit/muda yang sangat soft untuk penanda field otomatis */
+            color: #486581;            /* Teks biru abu-abu gelap agar tetap kontras dan rapi */
+            cursor: not-allowed;
+        }
+
+        .unit-label {
+            font-size: 11px;
+            color: #486581;
+            font-weight: bold;
+        }
+
+        /* Tombol */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-add { background-color: var(--primary); color: white; }
+        .btn-remove { background-color: #fff; color: var(--danger); border: 1px solid var(--danger); }
+        .btn-report { background-color: var(--success); color: white; width: 100%; margin-top: 10px; }
+
+        /* Area Hasil Laporan */
+        .report-section {
+            margin-top: 30px;
+            border-top: 2px dashed var(--border-color);
+            padding-top: 20px;
+            display: none; /* Tersembunyi sebelum tombol diklik */
+        }
+        
+        .report-title {
+            font-size: 16px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            border-left: 4px solid var(--success);
+            padding-left: 8px;
+        }
+
+        /* Style untuk Footer Halaman Paling Bawah - Dibuat Space Sangat Panjang */
+        .footer-text {
+            text-align: center;
+            font-style: italic;
+            color: #888888;
+            opacity: 0.5;
+            margin-top: 250px;  /* Ditambahkan space jauh lebih panjang ke bawah */
+            margin-bottom: 40px;
+            font-size: 12px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>
+        Form Packing
+        <span style="display: block; font-size: 11px; font-style: italic; letter-spacing: 6px; color: #888888; opacity: 0.6; font-weight: normal; margin-top: 5px; text-transform: uppercase;">LINE-4</span>
+    </h1>
+    
+    <div class="table-wrapper">
+        <table id="tablePacking">
+            <thead>
+                <tr>
+                    <th rowspan="2">Nama Produk</th>
+                    <th rowspan="2" style="width: 90px;">BSTB</th>
+                    <th colspan="2" style="width: 180px;">Finish Good</th>
+                    <th colspan="2" style="width: 160px;">Reject</th>
+                </tr>
+                <tr>
+                    <th style="font-size: 11px; width: 90px;">Pack</th>
+                    <th style="font-size: 11px; width: 90px;">Kg</th>
+                    <th style="font-size: 11px; width: 80px;">Kg</th>
+                    <th style="font-size: 11px; width: 80px;">Persen</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+            <tfoot>
+                <tr style="background-color: #f8fafc;">
+                    <td colspan="3" style="text-align: right; font-weight: bold; font-size: 13px; padding: 10px; border-bottom-left-radius: 8px;">Total</td>
+                    <td style="padding: 8px 6px; background-color: #ffffff; vertical-align: middle;">
+                        <div id="totalFgKg" style="width: 100%; padding: 8px 6px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 13px; background-color: #e6effa; color: #486581; text-align: center; font-weight: bold; box-sizing: border-box; white-space: nowrap;">0 kg</div>
+                    </td>
+                    <td colspan="2" style="border-bottom-right-radius: 8px;"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="button-group">
+        <button type="button" class="btn btn-add" onclick="tambahBaris()">+ Tambah Produk</button>
+        <button type="button" class="btn btn-remove" onclick="hapusBaris()">- Hapus Produk</button>
+    </div>
+    
+    <button type="button" class="btn btn-report" onclick="generateLaporan()">⚡ Generate Laporan</button>
+
+    <div id="reportSection" class="report-section">
+        <h2 class="report-title">Hasil Laporan</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Nama Produk</th>
+                        <th colspan="2" style="width: 180px;">Finish Good</th>
+                        <th colspan="2" style="width: 160px;">Reject</th>
+                    </tr>
+                    <tr>
+                        <th style="font-size: 11px; width: 90px;">Pack</th>
+                        <th style="font-size: 11px; width: 90px;">Kg</th>
+                        <th style="font-size: 11px; width: 80px;">Kg</th>
+                        <th style="font-size: 11px; width: 80px;">Persen</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                </tbody>
+                <tfoot>
+                    <tr style="background-color: #f1f5f9;">
+                        <td colspan="2" style="text-align: right; font-weight: bold; font-size: 13px; padding: 10px; border-bottom-left-radius: 8px;">Total</td>
+                        <td id="reportTotalFgKg" style="text-align: right; font-weight: bold; font-size: 13px; background-color: var(--total-bg); color: var(--text-dark); padding: 10px; white-space: nowrap;">0 kg</td>
+                        <td colspan="2" style="border-bottom-right-radius: 8px;"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="footer-text">create by: @ars.mustofa</div>
+
+<script>
+    function buatBarisBaru() {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <select name="nama_produk[]">
+                    <option value="" disabled selected>-- Pilih Produk --</option>
+                    <option value="Salam Bakso Ayam 500">Salam Bakso Ayam 500</option>
+                    <option value="Salam Bakso Kerikil 500">Salam Bakso Kerikil 500</option>
+                    <option value="Salam Bakso Sapi 500">Salam Bakso Sapi 500</option>
+                    <option value="Salam Bakso Kerikil Banded">Salam Bakso Kerikil Banded</option>
+                    <option value="Salam Bakso Jumbo 700">Salam Bakso Jumbo 700</option>
+                    <option value="Kamil Bakso Sapi 250">Kamil Bakso Sapi 250</option>
+                    <option value="Kamil Bakso Sapi 500">Kamil Bakso Sapi 500</option>
+                    <option value="Kamil Bakso Sapi 750">Kamil Bakso Sapi 750</option>
+                    <option value="Salam Naget 250">Salam Naget 250</option>
+                    <option value="Salam Naget 500">Salam Naget 500</option>
+                    <option value="Salam Naget 1000">Salam Naget 1000</option>
+                    <option value="Salam Naget Stik 250">Salam Naget Stik 250</option>
+                    <option value="Salam Naget Stik 500">Salam Naget Stik 500</option>
+                    <option value="Salam Naget Stik 1000">Salam Naget Stik 1000</option>
+                    <option value="Salam Naget Hati 250">Salam Naget Hati 250</option>
+                    <option value="Salam Naget Hati 500">Salam Naget Hati 500</option>
+                    <option value="Salam Naget Hati 1000">Salam Naget Hati 1000</option>
+                    <option value="Zaitun Naget Stikie Ori">Zaitun Naget Stikie Ori</option>
+                    <option value="Zaitun Naget Stikie Cheese">Zaitun Naget Stikie Cheese</option>
+                    <option value="Zaitun Crispy Naget 250">Zaitun Crispy Naget 250</option>
+                    <option value="Zaitun Crispy Naget 400">Zaitun Crispy Naget 400</option>
+                    <option value="Zaitun Crispy Naget 500">Zaitun Crispy Naget 500</option>
+                    <option value="Kamil Crispy Burger">Kamil Crispy Burger</option>
+                    <option value="Salam Scallop">Salam Scallop</option>
+                    <option value="Salam Squid Flower">Salam Squid Flower</option>
+                    <option value="Zaitun Karage">Zaitun Karage</option>
+                    <option value="Zaitun Katsu">Zaitun Katsu</option>
+                    <option value="Zaitun Crispy Crunch">Zaitun Crispy Crunch</option>
+                    <option value="Zaitun Chicken Pok-pok">Zaitun Chicken Pok-pok</option>
+                    <option value="Katsu FM">Katsu FM</option>
+                    <option value="Hisana Egg Roll 300">Hisana Egg Roll 300</option>
+                    <option value="Hisana Shrimp Roll 200">Hisana Shrimp Roll 200</option>
+                    <option value="Zaitun Naget Ori 225">Zaitun Naget Ori 225</option>
+                    <option value="Zaitun Naget Ori 400">Zaitun Naget Ori 400</option>
+                </select>
+            </td>
+            <td><input type="number" class="input-bstb" placeholder="0" style="text-align: center;"></td>
+            <td><input type="text" class="input-pack" placeholder="0" readonly style="text-align: center;"></td>
+            <td><input type="text" class="input-kg" placeholder="0" readonly style="text-align: center;"></td>
+            <td>
+                <input type="text" 
+                       inputmode="decimal" 
+                       class="input-reject-kg" 
+                       placeholder="0.00" 
+                       style="text-align: right;" 
+                       oninput="this.value = this.value.replace(/,/g, '.').replace(/[^0-9.]/g, '')" 
+                       onblur="if(this.value) this.value = parseFloat(this.value).toFixed(2)">
+            </td>
+            <td><input type="text" class="input-reject-persen" value="0%" readonly style="text-align: right;"></td>
+        `;
+        return tr;
+    }
+
+    function tambahBaris() {
+        document.getElementById('tableBody').appendChild(buatBarisBaru());
+        hitungTotalSemua();
+    }
+
+    function hapusBaris() {
+        const tbody = document.getElementById('tableBody');
+        if (tbody.rows.length > 0) {
+            tbody.deleteRow(tbody.rows.length - 1);
+            hitungTotalSemua();
+        }
+    }
+
+    // Fungsi menghitung akumulasi total Finish Good Kg di tabel input
+    function hitungTotalSemua() {
+        let totalKg = 0;
+        const inputsKg = document.querySelectorAll('.input-kg');
+        
+        inputsKg.forEach(input => {
+            const rawVal = parseFloat(input.getAttribute('data-raw-val')) || 0;
+            totalKg += rawVal;
+        });
+
+        document.getElementById('totalFgKg').innerText = totalKg.toLocaleString('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }) + " kg";
+    }
+
+    // Fungsi hitung otomatis per baris (RUMUS UTAMA - DIJAMIN 100% AMAN DAN TIDAK BERUBAH)
+    function hitungBaris(tr) {
+        const produk = tr.querySelector('select[name="nama_produk[]"]').value;
+        const bstbInput = tr.querySelector('.input-bstb');
+        const packInput = tr.querySelector('.input-pack');
+        const kgInput = tr.querySelector('.input-kg');
+        const rejectKgInput = tr.querySelector('.input-reject-kg');
+        const rejectPersenInput = tr.querySelector('.input-reject-persen');
+
+        if (!bstbInput || !packInput || !kgInput || !rejectKgInput || !rejectPersenInput) return;
+
+        const rejectKg = parseFloat(rejectKgInput.value) || 0;
+
+        // Jika BSTB kosong, kembalikan semua nilai kalkulasi ke default
+        if (!bstbInput.value) {
+            packInput.value = "";
+            packInput.style.textAlign = "center";
+            kgInput.value = "";
+            kgInput.style.textAlign = "center";
+            kgInput.removeAttribute('data-raw-val');
+            rejectPersenInput.value = "0%";
+            hitungTotalSemua();
+            return;
+        }
+
+        const bstb = parseFloat(bstbInput.value) || 0;
+        let pack = 0;
+        let kgReal = 0;
+        let hitungSesuai = false;
+
+        // 1. KELOMPOK ISI 12 PACK x 500 GRAM (Bakso, Scallop, Squid Flower)
+        if (produk === "Salam Bakso Sapi 500" || 
+            produk === "Salam Bakso Ayam 500" || 
+            produk === "Salam Bakso Kerikil 500" || 
+            produk === "Salam Bakso Kerikil Banded" ||
+            produk === "Salam Scallop" ||
+            produk === "Salam Squid Flower") {
+            
+            pack = bstb * 12;
+            kgReal = (pack * 500) / 1000;
+            hitungSesuai = true;
+        } 
+        // 2. KELOMPOK ISI 20 PACK x 250 GRAM (Salam Naget 250, Stik 250, Hati 250, Zaitun Crispy Naget 250)
+        else if (produk === "Salam Naget 250" || 
+                 produk === "Salam Naget Stik 250" ||
+                 produk === "Salam Naget Hati 250" ||
+                 produk === "Zaitun Crispy Naget 250") {
+            pack = bstb * 20;
+            kgReal = (pack * 250) / 1000;
+            hitungSesuai = true;
+        } 
+        // 3. KELOMPOK ISI 10 PACK x 500 GRAM (Salam Naget 500, Stik 500, Hati 500, Zaitun Crispy Naget 500, Karage, Katsu, Crispy Crunch, Pok-pok)
+        else if (produk === "Salam Naget 500" || 
+                 produk === "Salam Naget Stik 500" || 
+                 produk === "Salam Naget Hati 500" ||
+                 produk === "Zaitun Crispy Naget 500" ||
+                 produk === "Zaitun Karage" ||
+                 produk === "Zaitun Katsu" ||
+                 produk === "Zaitun Crispy Crunch" ||
+                 produk === "Zaitun Chicken Pok-pok") {
+            pack = bstb * 10;
+            kgReal = (pack * 500) / 1000;
+            hitungSesuai = true;
+        } 
+        // 4. KELOMPOK ISI 5 PACK x 1000 GRAM (Salam Naget 1000, Stik 1000, Hati 1000, Katsu FM)
+        else if (produk === "Salam Naget 1000" || 
+                 produk === "Salam Naget Stik 1000" || 
+                 produk === "Salam Naget Hati 1000" ||
+                 produk === "Katsu FM") {
+            pack = bstb * 5;
+            kgReal = (pack * 1000) / 1000;
+            hitungSesuai = true;
+        }
+        // 5. KELOMPOK ZAITUN CRISPY NAGET 400 (1 Box = 10 pack x 400 gram)
+        else if (produk === "Zaitun Crispy Naget 400") {
+            pack = bstb * 10;
+            kgReal = (pack * 400) / 1000;
+            hitungSesuai = true;
+        }
+        // 6. KELOMPOK KAMIL CRISPY BURGER (1 Box = 18 pack x 300 gram)
+        else if (produk === "Kamil Crispy Burger") {
+            pack = bstb * 18;
+            kgReal = (pack * 300) / 1000;
+            hitungSesuai = true;
+        }
+        // 7. BARU: KELOMPOK SALAM BAKSO JUMBO 700 (1 Box = 10 pack x 700 gram)
+        else if (produk === "Salam Bakso Jumbo 700") {
+            pack = bstb * 10;
+            kgReal = (pack * 700) / 1000;
+            hitungSesuai = true;
+        }
+        // 8. BARU: KELOMPOK KAMIL BAKSO SAPI 250 (1 Box/BSTB = 1 pack x 250 gram)
+        else if (produk === "Kamil Bakso Sapi 250") {
+            pack = bstb;
+            kgReal = (pack * 250) / 1000;
+            hitungSesuai = true;
+        }
+        // 9. BARU: KELOMPOK KAMIL BAKSO SAPI 500 (1 Box/BSTB = 1 pack x 500 gram)
+        else if (produk === "Kamil Bakso Sapi 500") {
+            pack = bstb;
+            kgReal = (pack * 500) / 1000;
+            hitungSesuai = true;
+        }
+        // 10. BARU: KELOMPOK KAMIL BAKSO SAPI 750 (1 Box/BSTB = 1 pack x 750 gram)
+        else if (produk === "Kamil Bakso Sapi 750") {
+            pack = bstb;
+            kgReal = (pack * 750) / 1000;
+            hitungSesuai = true;
+        }
+
+        // Tampilkan hasil jika produk yang dipilih masuk dalam rumus kalkulasi
+        if (hitungSesuai) {
+            packInput.value = pack.toLocaleString('id-ID');
+            packInput.style.textAlign = "right";
+
+            kgInput.value = kgReal.toLocaleString('id-ID');
+            kgInput.style.textAlign = "right";
+            kgInput.setAttribute('data-raw-val', kgReal); // Simpan angka murni untuk totalan
+        } else {
+            packInput.value = "";
+            packInput.style.textAlign = "center";
+            kgInput.value = "";
+            kgInput.style.textAlign = "center";
+            kgInput.removeAttribute('data-raw-val');
+        }
+
+        // Hitung persentase reject jika Finish Good Kg (kgReal) lebih dari 0
+        if (kgReal > 0) {
+            const persenReject = (rejectKg / kgReal) * 100;
+            rejectPersenInput.value = persenReject.toLocaleString('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }) + "%";
+        } else {
+            rejectPersenInput.value = "0%";
+        }
+
+        // Update baris total terbawah secara real-time
+        hitungTotalSemua();
+    }
+
+    // Fungsi Menggenerate Laporan Beserta Total Hasil Akhir
+    function generateLaporan() {
+        const trs = document.querySelectorAll('#tableBody tr');
+        const reportTableBody = document.getElementById('reportTableBody');
+        const reportSection = document.getElementById('reportSection');
+        
+        reportTableBody.innerHTML = ''; // Bersihkan data laporan lama
+        let adaData = false;
+        let totalKgLaporan = 0;
+
+        trs.forEach(tr => {
+            const produk = tr.querySelector('select[name="nama_produk[]"]').value;
+
+            const pack = tr.querySelector('.input-pack').value || '0';
+            const kg = tr.querySelector('.input-kg').value || '0';
+            const rejectKg = tr.querySelector('.input-reject-kg').value || '0.00';
+            const rejectPersen = tr.querySelector('.input-reject-persen').value || '0%';
+
+            const rawKg = parseFloat(tr.querySelector('.input-kg').getAttribute('data-raw-val')) || 0;
+
+            // Validasi: Hanya baris yang sudah dipilih produknya yang masuk laporan
+            if (produk) {
+                adaData = true;
+                totalKgLaporan += rawKg; // Tambahkan ke akumulasi laporan
+
+                const newTr = document.createElement('tr');
+                newTr.innerHTML = `
+                    <td><strong>${produk}</strong></td>
+                    <td style="text-align: right; background-color: #f8fafc;">${pack}</td>
+                    <td style="text-align: right; background-color: #f8fafc;">${kg}</td>
+                    <td style="text-align: right; background-color: #fff1f2; color: #e11d48;">${rejectKg}</td>
+                    <td style="text-align: right; background-color: #fff1f2; color: #e11d48;">${rejectPersen}</td>
+                `;
+                reportTableBody.appendChild(newTr);
+            }
+        });
+
+        if (adaData) {
+            // Update teks total pada tabel hasil laporan
+            document.getElementById('reportTotalFgKg').innerText = totalKgLaporan.toLocaleString('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }) + " kg";
+
+            reportSection.style.display = 'block';
+            reportSection.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            alert('Belum ada produk yang dipilih. Silakan isi form terlebih dahulu.');
+            reportSection.style.display = 'none';
+        }
+    }
+
+    // Inisialisasi awal 4 baris & Event Listeners
+    window.onload = () => {
+        for(let i=0; i<4; i++) tambahBaris();
+
+        const tableBody = document.getElementById('tableBody');
+
+        // Deteksi input angka pada field BSTB dan Reject Kg
+        tableBody.addEventListener('input', (e) => {
+            if (e.target.classList.contains('input-bstb') || e.target.classList.contains('input-reject-kg')) {
+                hitungBaris(e.target.closest('tr'));
+            }
+        });
+
+        // Deteksi setelah user selesai mengetik Reject Kg (saat efek .toFixed(2) berjalan)
+        tableBody.addEventListener('focusout', (e) => {
+            if (e.target.classList.contains('input-reject-kg')) {
+                hitungBaris(e.target.closest('tr'));
+            }
+        });
+
+        // Deteksi perubahan opsi pada dropdown Nama Produk
+        tableBody.addEventListener('change', (e) => {
+            if (e.target.name === 'nama_produk[]') {
+                hitungBaris(e.target.closest('tr'));
+            }
+        });
+    };
+</script>
+
+</body>
+</html>
