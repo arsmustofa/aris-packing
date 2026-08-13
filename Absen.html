@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABSENSI MANPOWER PACKING LINE-4</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f6f9;
+            margin: 15px;
+            color: #333;
+        }
+
+        .action-bar {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title-container h2 {
+            margin: 0 0 4px 0;
+            color: #1b365d;
+            font-size: 20px;
+        }
+
+        .periode-subheader {
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .btn-save {
+            background-color: #1b365d;
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-save:hover {
+            background-color: #12243e;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 1100px;
+            font-size: 12px;
+        }
+
+        th, td {
+            border: 1px solid #c0c0c0;
+            padding: 5px 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .excel-header {
+            background-color: #1b365d;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .name-col {
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        /* Status Select Option */
+        select.status-select {
+            border: none;
+            font-size: 11px;
+            font-weight: bold;
+            text-align-last: center;
+            cursor: pointer;
+            width: 100%;
+            padding: 3px 0;
+        }
+
+        /* Warna opsi MASUK (Hijau) */
+        select.status-select.masuk {
+            color: #1e7e34;
+            background-color: #d4edda;
+            border-radius: 3px;
+        }
+
+        /* Warna opsi OFF (Merah) */
+        select.status-select.off {
+            color: #d9534f;
+            background-color: #f2dede;
+            border-radius: 3px;
+        }
+
+        /* Total Footer Styling persis Excel */
+        .row-total-masuk {
+            background-color: #daeef3;
+            font-weight: bold;
+        }
+
+        .row-total-off {
+            background-color: #f2dbdb;
+            font-weight: bold;
+        }
+
+        /* Striping selang-seling tipis */
+        tr:nth-child(even) td:not(.excel-header):not(.row-total-masuk):not(.row-total-off) {
+            background-color: #fcfcfc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="action-bar">
+        <div class="header-title-container">
+            <h2>ABSENSI MANPOWER PACKING LINE-4</h2>
+            <div class="periode-subheader" id="periodeHeader">Periode --</div>
+        </div>
+        <button class="btn-save" onclick="saveToGoogleSheets()">💾 Simpan Data</button>
+    </div>
+
+    <div class="table-container">
+        <table id="absensiTable">
+            <thead>
+                <tr>
+                    <th rowspan="2" class="excel-header" style="width: 40px;">No</th>
+                    <th rowspan="2" class="excel-header" style="width: 220px;">Nama Karyawan</th>
+                    <th rowspan="2" class="excel-header" style="width: 180px;">Bagian</th>
+                    <th rowspan="2" class="excel-header" style="width: 60px;">Jumlah</th>
+                    <th colspan="7" class="excel-header">HARI</th>
+                    <th rowspan="2" class="excel-header" style="width: 90px;">Total Masuk</th>
+                    <th rowspan="2" class="excel-header" style="width: 80px;">Total OFF</th>
+                </tr>
+                <tr>
+                    <th class="excel-header" style="width: 75px;">Senin</th>
+                    <th class="excel-header" style="width: 75px;">Selasa</th>
+                    <th class="excel-header" style="width: 75px;">Rabu</th>
+                    <th class="excel-header" style="width: 75px;">Kamis</th>
+                    <th class="excel-header" style="width: 75px;">Jumat</th>
+                    <th class="excel-header" style="width: 75px;">Sabtu</th>
+                    <th class="excel-header" style="width: 75px;">Minggu</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Data Manpower di-render otomatis via JS -->
+            </tbody>
+            <tfoot>
+                <tr class="row-total-masuk">
+                    <td colspan="4" style="text-align: left; font-weight: bold; padding-left: 10px;">Total Masuk</td>
+                    <td id="tot-masuk-0">0</td>
+                    <td id="tot-masuk-1">0</td>
+                    <td id="tot-masuk-2">0</td>
+                    <td id="tot-masuk-3">0</td>
+                    <td id="tot-masuk-4">0</td>
+                    <td id="tot-masuk-5">0</td>
+                    <td id="tot-masuk-6">0</td>
+                    <td colspan="2"></td>
+                </tr>
+                <tr class="row-total-off">
+                    <td colspan="4" style="text-align: left; font-weight: bold; padding-left: 10px;">Total off</td>
+                    <td id="tot-off-0">0</td>
+                    <td id="tot-off-1">0</td>
+                    <td id="tot-off-2">0</td>
+                    <td id="tot-off-3">0</td>
+                    <td id="tot-off-4">0</td>
+                    <td id="tot-off-5">0</td>
+                    <td id="tot-off-6">0</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjOfidd7evYsQgZOXnokpL2FH5b8Q4Qa5lk1vGxDkackUiRtlR9TMFabTlibiR5IK8/exec";
+
+        // Data Manpower lengkap sesuai struktur & merged cell dari file Absensi.xlsx
+        const manpowerData = [
+            { no: 1, name: "Aris Mustofa", bagian: "Leader", rowspan: 1, jumlah: 1 },
+            { no: 2, name: "Putri Echmawati", bagian: "Checker", rowspan: 1, jumlah: 1 },
+            { no: 3, name: "Avita Nur Rahma O", bagian: "Op Transfer", rowspan: 2, jumlah: 2 },
+            { no: 4, name: "Amelia Yunita", bagian: null },
+            { no: 5, name: "Hestiana", bagian: "Sortir IQF-5", rowspan: 2, jumlah: 2 },
+            { no: 6, name: "Tumiasri Dwi Lestari", bagian: null },
+            { no: 7, name: "Didik Novaldi", bagian: "Op MHW-3", rowspan: 2, jumlah: 2 },
+            { no: 8, name: "M Shofyan Effendi", bagian: null },
+            { no: 9, name: "Diska Agnesia", bagian: "Sortir MHW-3", rowspan: 3, jumlah: 3 },
+            { no: 10, name: "Destia", bagian: null },
+            { no: 11, name: "Nurul Ainia", bagian: null },
+            { no: 12, name: "Sheila Zakiyatus Sahdiah", bagian: "Op Metal", rowspan: 1, jumlah: 1 },
+            { no: 13, name: "Agung Priyangga", bagian: "Op Pbox", rowspan: 4, jumlah: 4 },
+            { no: 14, name: "M Shofiullah", bagian: null },
+            { no: 15, name: "Arizky Kripdyanto", bagian: null },
+            { no: 16, name: "Aldib Destadea", bagian: null },
+            { no: 17, name: "Achmad Aziz", bagian: "Op Sealer Box", rowspan: 2, jumlah: 2 },
+            { no: 18, name: "Arya Anggara Putra", bagian: null },
+            { no: 19, name: "Rahmat Dwi P", bagian: "Op MHW-4", rowspan: 2, jumlah: 2 },
+            { no: 20, name: "Dhanang Riyanto", bagian: null },
+            { no: 21, name: "Ayu Fanjani", bagian: "Sortir MHW-4", rowspan: 3, jumlah: 3 },
+            { no: 22, name: "Nalindri Dewantari", bagian: null },
+            { no: 23, name: "Dini Wulan Suci", bagian: null },
+            { no: 24, name: "Nezza Syafira", bagian: "Op Metal MHW-4", rowspan: 1, jumlah: 1 },
+            { no: 25, name: "Bagus Anwar", bagian: "Op Pbox MHW-4", rowspan: 5, jumlah: 5 },
+            { no: 26, name: "M Budi Santoso", bagian: null },
+            { no: 27, name: "Firman Maulana", bagian: null },
+            { no: 28, name: "Guntur Maulana", bagian: null },
+            { no: 29, name: "Aslam Nur Mashudi", bagian: null },
+            { no: 30, name: "Galuh Al-Arafat", bagian: "Op Sealer Box", rowspan: 2, jumlah: 2 },
+            { no: 31, name: "M Syaiful Karim", bagian: null },
+            { no: 32, name: "Anggy Dwi Saputra", bagian: "Op MHC-D1", rowspan: 2, jumlah: 2 },
+            { no: 33, name: "Firman Wibowo", bagian: null },
+            { no: 34, name: "Desy Purwansari", bagian: "Sortir Atas MHC-D1", rowspan: 2, jumlah: 2 },
+            { no: 35, name: "Nitdaus Sa'ada", bagian: null },
+            { no: 36, name: "Arnia wardhani", bagian: "Sortir Bawah MHC-D1", rowspan: 2, jumlah: 2 },
+            { no: 37, name: "Vivi Ismia Dini", bagian: null },
+            { no: 38, name: "Ferdiana Setyowati", bagian: "Op Sealer", rowspan: 1, jumlah: 1 },
+            { no: 39, name: "Ica Mariska", bagian: "Op Metal MHC-D1", rowspan: 1, jumlah: 1 },
+            { no: 40, name: "Dian Fanani", bagian: "Op Pbox MHC-D1", rowspan: 1, jumlah: 1 },
+            { no: 41, name: "Aldi Reza Ramadhani", bagian: "Op MHC-D2", rowspan: 1, jumlah: 1 },
+            { no: 42, name: "Cindy Dwi Maharani", bagian: "Sortir Atas MHC-D2", rowspan: 2, jumlah: 2 },
+            { no: 43, name: "Nurul Fitria", bagian: null },
+            { no: 44, name: "Ernawati", bagian: "Sortir Bawah MHC-D2", rowspan: 2, jumlah: 2 },
+            { no: 45, name: "Nagita Purwanintyas", bagian: null },
+            { no: 46, name: "Anisa Amelya", bagian: "Op Sealer", rowspan: 1, jumlah: 1 },
+            { no: 47, name: "Novi Aulia", bagian: "Op Metal MHC-D2", rowspan: 1, jumlah: 1 },
+            { no: 48, name: "M. Faiz Prastyo", bagian: "Op Pbox MHC-D2", rowspan: 2, jumlah: 2 },
+            { no: 49, name: "M Afrian Widiansyah", bagian: null },
+            { no: 50, name: "Luvi Indah Pratiwi", bagian: "Stamp VP", rowspan: 3, jumlah: 3 },
+            { no: 51, name: "Rizki Zuan Pertiwi", bagian: null },
+            { no: 52, name: "Ayu Wandira Azzahra", bagian: null },
+            { no: 53, name: "Gita Inkasari", bagian: "Stamp Karton", rowspan: 3, jumlah: 3 },
+            { no: 54, name: "Yulia Tri Setyowati", bagian: null },
+            { no: 55, name: "Alifah Sri Rahayu", bagian: null },
+            { no: 56, name: "Arum Ariyanti", bagian: "Packing Manual", rowspan: 6, jumlah: 6 },
+            { no: 57, name: "Devi Panca", bagian: null },
+            { no: 58, name: "Miftahul Khoirunnisa", bagian: null },
+            { no: 59, name: "Erika Gustya", bagian: null },
+            { no: 60, name: "Anisa yulia", bagian: null },
+            { no: 61, name: "Qurota Ayunina", bagian: null },
+            { no: 62, name: "Choir Cahyaningtyas", bagian: "MSB/IKAN", rowspan: 7, jumlah: 7 },
+            { no: 63, name: "Tiya dwi F", bagian: null },
+            { no: 64, name: "Meisa Bunga P", bagian: null },
+            { no: 65, name: "Fitri Eka", bagian: null },
+            { no: 66, name: "Aisyah R", bagian: null },
+            { no: 67, name: "Cintya Aulia Agustina", bagian: null },
+            { no: 68, name: "Silvi Dwi", bagian: null }
+        ];
+
+        // Fungsi membuat teks Periode mingguan otomatis (Senin - Minggu)
+        function getWeeklyPeriodeText() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0 = Minggu, 1 = Senin, ...
+            const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+            const monday = new Date(today);
+            monday.setDate(today.getDate() + diffToMonday);
+
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+
+            const monthNames = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+
+            const monDate = monday.getDate();
+            const monMonth = monthNames[monday.getMonth()];
+            const monYear = monday.getFullYear();
+
+            const sunDate = sunday.getDate();
+            const sunMonth = monthNames[sunday.getMonth()];
+            const sunYear = sunday.getFullYear();
+
+            if (monYear !== sunYear) {
+                return `Periode ${monDate} ${monMonth} ${monYear} - ${sunDate} ${sunMonth} ${sunYear}`;
+            } else if (monMonth !== sunMonth) {
+                return `Periode ${monDate} ${monMonth} - ${sunDate} ${sunMonth} ${sunYear}`;
+            } else {
+                return `Periode ${monDate} - ${sunDate} ${sunMonth} ${sunYear}`;
+            }
+        }
+
+        function updatePeriodeHeader() {
+            const text = getWeeklyPeriodeText();
+            const el = document.getElementById('periodeHeader');
+            if (el) el.textContent = text;
+            return text;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            manpowerData.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.dataset.index = idx;
+
+                let html = `<td>${item.no}</td><td class="name-col">${item.name}</td>`;
+
+                if (item.bagian !== null) {
+                    html += `<td rowspan="${item.rowspan}">${item.bagian}</td>`;
+                    html += `<td rowspan="${item.rowspan}">${item.jumlah}</td>`;
+                }
+
+                for (let d = 0; d < 7; d++) {
+                    html += `
+                        <td>
+                            <select class="status-select masuk" onchange="calculateTotals(); updateSelectStyle(this);">
+                                <option value="MASUK" selected>MASUK</option>
+                                <option value="OFF">OFF</option>
+                            </select>
+                        </td>`;
+                }
+
+                html += `<td class="total-masuk-cell">7</td><td class="total-off-cell">0</td>`;
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+
+            calculateTotals();
+        }
+
+        function updateSelectStyle(selectEl) {
+            if (selectEl.value === 'OFF') {
+                selectEl.classList.remove('masuk');
+                selectEl.classList.add('off');
+            } else {
+                selectEl.classList.remove('off');
+                selectEl.classList.add('masuk');
+            }
+        }
+
+        function calculateTotals() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            const dailyMasuk = [0, 0, 0, 0, 0, 0, 0];
+            const dailyOff = [0, 0, 0, 0, 0, 0, 0];
+
+            rows.forEach(tr => {
+                const selects = tr.querySelectorAll('select.status-select');
+                let userMasuk = 0;
+                let userOff = 0;
+
+                selects.forEach((sel, dayIndex) => {
+                    if (sel.value === 'MASUK') {
+                        userMasuk++;
+                        dailyMasuk[dayIndex]++;
+                    } else {
+                        userOff++;
+                        dailyOff[dayIndex]++;
+                    }
+                });
+
+                tr.querySelector('.total-masuk-cell').textContent = userMasuk;
+                tr.querySelector('.total-off-cell').textContent = userOff;
+            });
+
+            for (let i = 0; i < 7; i++) {
+                document.getElementById(`tot-masuk-${i}`).textContent = dailyMasuk[i];
+                document.getElementById(`tot-off-${i}`).textContent = dailyOff[i];
+            }
+        }
+
+        function saveToGoogleSheets() {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("GANTI_DENGAN")) {
+                alert("Harap masukkan URL Web App Google Apps Script Anda pada variabel GOOGLE_SCRIPT_URL di dalam kode!");
+                return;
+            }
+
+            const rows = document.querySelectorAll('#tableBody tr');
+            const rowData = [];
+
+            rows.forEach((tr, idx) => {
+                const selects = tr.querySelectorAll('select.status-select');
+                const days = {
+                    Senin: selects[0].value,
+                    Selasa: selects[1].value,
+                    Rabu: selects[2].value,
+                    Kamis: selects[3].value,
+                    Jumat: selects[4].value,
+                    Sabtu: selects[5].value,
+                    Minggu: selects[6].value
+                };
+
+                rowData.push({
+                    no: manpowerData[idx].no,
+                    name: manpowerData[idx].name,
+                    bagian: manpowerData[idx].bagian || "",
+                    jumlah: manpowerData[idx].jumlah || "",
+                    days: days,
+                    totalMasuk: tr.querySelector('.total-masuk-cell').textContent,
+                    totalOff: tr.querySelector('.total-off-cell').textContent
+                });
+            });
+
+            const daysHeader = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+            const totals = { masuk: {}, off: {} };
+            daysHeader.forEach((day, i) => {
+                totals.masuk[day] = document.getElementById(`tot-masuk-${i}`).textContent;
+                totals.off[day] = document.getElementById(`tot-off-${i}`).textContent;
+            });
+
+            const payload = {
+                title: "ABSENSI MANPOWER PACKING LINE-4",
+                periode: getWeeklyPeriodeText(),
+                rows: rowData,
+                totals: totals
+            };
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                alert("Data absensi berhasil dikirim & disimpan ke Google Sheets!");
+            }).catch(err => {
+                alert("Gagal menyimpan data: " + err);
+            });
+        }
+
+        // Jalankan render & penyesuaian periode saat halaman dimuat
+        window.onload = function() {
+            updatePeriodeHeader();
+            renderTable();
+        };
+    </script>
+</body>
+</html>
