@@ -78,7 +78,6 @@
             padding-left: 10px;
         }
 
-        /* Status Select Option */
         select.status-select {
             border: none;
             font-size: 11px;
@@ -89,21 +88,18 @@
             padding: 3px 0;
         }
 
-        /* Warna opsi MASUK (Hijau) */
         select.status-select.masuk {
             color: #1e7e34;
             background-color: #d4edda;
             border-radius: 3px;
         }
 
-        /* Warna opsi OFF (Merah) */
         select.status-select.off {
             color: #d9534f;
             background-color: #f2dede;
             border-radius: 3px;
         }
 
-        /* Total Footer Styling persis Excel */
         .row-total-masuk {
             background-color: #daeef3;
             font-weight: bold;
@@ -114,7 +110,6 @@
             font-weight: bold;
         }
 
-        /* Striping selang-seling tipis */
         tr:nth-child(even) td:not(.excel-header):not(.row-total-masuk):not(.row-total-off) {
             background-color: #fcfcfc;
         }
@@ -153,7 +148,7 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <!-- Data Manpower di-render otomatis via JS -->
+                <!-- Data Manpower di-render via JS -->
             </tbody>
             <tfoot>
                 <tr class="row-total-masuk">
@@ -183,9 +178,9 @@
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjOfidd7evYsQgZOXnokpL2FH5b8Q4Qa5lk1vGxDkackUiRtlR9TMFabTlibiR5IK8/exec";
+        // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI:
+        const GOOGLE_SCRIPT_URL = "PASTE_URL_WEB_APP_ANDA_DI_SINI";
 
-        // Data Manpower lengkap sesuai struktur & merged cell dari file Absensi.xlsx
         const manpowerData = [
             { no: 1, name: "Aris Mustofa", bagian: "Leader", rowspan: 1, jumlah: 1 },
             { no: 2, name: "Putri Echmawati", bagian: "Checker", rowspan: 1, jumlah: 1 },
@@ -257,10 +252,9 @@
             { no: 68, name: "Silvi Dwi", bagian: null }
         ];
 
-        // Fungsi membuat teks Periode mingguan otomatis (Senin - Minggu)
         function getWeeklyPeriodeText() {
             const today = new Date();
-            const dayOfWeek = today.getDay(); // 0 = Minggu, 1 = Senin, ...
+            const dayOfWeek = today.getDay();
             const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
             const monday = new Date(today);
@@ -274,21 +268,7 @@
                 "Juli", "Agustus", "September", "Oktober", "November", "Desember"
             ];
 
-            const monDate = monday.getDate();
-            const monMonth = monthNames[monday.getMonth()];
-            const monYear = monday.getFullYear();
-
-            const sunDate = sunday.getDate();
-            const sunMonth = monthNames[sunday.getMonth()];
-            const sunYear = sunday.getFullYear();
-
-            if (monYear !== sunYear) {
-                return `Periode ${monDate} ${monMonth} ${monYear} - ${sunDate} ${sunMonth} ${sunYear}`;
-            } else if (monMonth !== sunMonth) {
-                return `Periode ${monDate} ${monMonth} - ${sunDate} ${sunMonth} ${sunYear}`;
-            } else {
-                return `Periode ${monDate} - ${sunDate} ${sunMonth} ${sunYear}`;
-            }
+            return `Periode ${monday.getDate()} ${monthNames[monday.getMonth()]} - ${sunday.getDate()} ${monthNames[sunday.getMonth()]} ${sunday.getFullYear()}`;
         }
 
         function updatePeriodeHeader() {
@@ -352,12 +332,12 @@
                 let userOff = 0;
 
                 selects.forEach((sel, dayIndex) => {
-                    if (sel.value === 'MASUK') {
-                        userMasuk++;
-                        dailyMasuk[dayIndex]++;
-                    } else {
+                    if (sel.value === 'OFF') {
                         userOff++;
                         dailyOff[dayIndex]++;
+                    } else {
+                        userMasuk++;
+                        dailyMasuk[dayIndex]++;
                     }
                 });
 
@@ -371,11 +351,53 @@
             }
         }
 
-        function saveToGoogleSheets() {
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("GANTI_DENGAN")) {
-                alert("Harap masukkan URL Web App Google Apps Script Anda pada variabel GOOGLE_SCRIPT_URL di dalam kode!");
+        function loadFromGoogleSheets() {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("PASTE_URL")) {
+                renderTable();
                 return;
             }
+
+            renderTable();
+
+            // Tambahkan timestamp (?t=...) agar browser tidak menaruh data lama di cache
+            fetch(GOOGLE_SCRIPT_URL + "?t=" + new Date().getTime())
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.rows && data.rows.length > 0) {
+                        if (data.periode) {
+                            const el = document.getElementById('periodeHeader');
+                            if (el) el.textContent = data.periode;
+                        }
+
+                        const rows = document.querySelectorAll('#tableBody tr');
+                        data.rows.forEach((r, idx) => {
+                            if (rows[idx] && r.days) {
+                                const selects = rows[idx].querySelectorAll('select.status-select');
+                                const dayKeys = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+                                dayKeys.forEach((day, dIdx) => {
+                                    if (selects[dIdx] && r.days[day]) {
+                                        selects[dIdx].value = r.days[day];
+                                        updateSelectStyle(selects[dIdx]);
+                                    }
+                                });
+                            }
+                        });
+
+                        calculateTotals();
+                    }
+                })
+                .catch(err => console.log("Gagal memuat dari Sheets:", err));
+        }
+
+        function saveToGoogleSheets() {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbxs68ZrWESZD-fgf43B9SUYY0UvGJA0wjex7USis5Ig7aKZL66mzRR_ZIQiDADJQjEy/exec")) {
+                alert("Harap masukkan URL Web App Google Apps Script Anda!");
+                return;
+            }
+
+            const btn = document.querySelector('.btn-save');
+            btn.disabled = true;
+            btn.textContent = "⏳ Menyimpan...";
 
             const rows = document.querySelectorAll('#tableBody tr');
             const rowData = [];
@@ -412,7 +434,7 @@
 
             const payload = {
                 title: "ABSENSI MANPOWER PACKING LINE-4",
-                periode: getWeeklyPeriodeText(),
+                periode: document.getElementById('periodeHeader').textContent,
                 rows: rowData,
                 totals: totals
             };
@@ -420,19 +442,22 @@
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify(payload)
             }).then(() => {
-                alert("Data absensi berhasil dikirim & disimpan ke Google Sheets!");
+                alert("Data absensi berhasil disimpan ke Google Sheets!");
+                btn.disabled = false;
+                btn.textContent = "💾 Simpan Data";
             }).catch(err => {
                 alert("Gagal menyimpan data: " + err);
+                btn.disabled = false;
+                btn.textContent = "💾 Simpan Data";
             });
         }
 
-        // Jalankan render & penyesuaian periode saat halaman dimuat
         window.onload = function() {
             updatePeriodeHeader();
-            renderTable();
+            loadFromGoogleSheets();
         };
     </script>
 </body>
