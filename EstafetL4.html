@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estafet Packing Line-4</title>
+  <style>
+    :root {
+      --bg-color: #f4f6f9;
+      --card-bg: #ffffff;
+      --primary: #075e54;
+      --primary-hover: #128c7e;
+      --text-color: #333333;
+      --border-color: #cccccc;
+      --accent-bg: #e8f5e9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+      border-bottom: 2px solid var(--accent-bg);
+      padding-bottom: 10px;
+    }
+
+    .section-group {
+      background: #fafafa;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 10px;
+      font-size: 1rem;
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #777;
+      margin-top: 3px;
+    }
+
+    .btn-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-generate {
+      background-color: var(--primary);
+      color: white;
+      flex: 1;
+    }
+
+    .btn-generate:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-copy {
+      background-color: #25d366;
+      color: white;
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .btn-copy:hover {
+      background-color: #1ebc57;
+    }
+
+    .btn-reset {
+      background-color: #e53e3e;
+      color: white;
+      flex: 0.35;
+    }
+
+    .btn-reset:hover {
+      background-color: #c53030;
+    }
+
+    .preview-box {
+      margin-top: 20px;
+      background: #e5ddd5;
+      padding: 15px;
+      border-radius: 8px;
+      display: none; /* Sembunyi secara default */
+    }
+
+    .preview-title {
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    pre {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: monospace;
+      font-size: 0.88rem;
+      color: #111;
+      border-left: 4px solid var(--primary);
+      transition: background-color 0.3s;
+    }
+
+    /* Efek Flash Kuning */
+    @keyframes yellowFlash {
+      0% {
+        background-color: #fff59d;
+        box-shadow: 0 0 12px rgba(255, 235, 59, 0.8);
+      }
+      50% {
+        background-color: #fff176;
+      }
+      100% {
+        background-color: #ffffff;
+        box-shadow: none;
+      }
+    }
+
+    .flash-effect {
+      animation: yellowFlash 1s ease-out;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      display: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Estafet Packing Line-4</h2>
+
+  <!-- Status Mesin IQF -->
+  <div class="section-group">
+    <span class="section-title">Status IQF</span>
+    <div class="form-group">
+      <label for="iqf5">IQF-5:</label>
+      <input type="text" id="iqf5" placeholder="Contoh: Pumpdown, Bakso Ayam">
+    </div>
+    <div class="form-group">
+      <label for="iqf6">IQF-6:</label>
+      <input type="text" id="iqf6" placeholder="Contoh: Pumpdown, Naget Stik 500">
+    </div>
+  </div>
+
+  <!-- Status Mesin MHW -->
+  <div class="section-group">
+    <span class="section-title">Status MHW</span>
+    <div class="form-group">
+      <label for="mhw3">MHW-3:</label>
+      <input type="text" id="mhw3" placeholder="Contoh: Setting Ayam 500">
+    </div>
+    <div class="form-group">
+      <label for="mhw4">MHW-4:</label>
+      <input type="text" id="mhw4" placeholder="Contoh: Setting Naget Stik 500">
+    </div>
+    <div class="form-group">
+      <label for="mhcD1">MHC-D1:</label>
+      <input type="text" id="mhcD1" placeholder="Contoh: Bakso Sapi">
+    </div>
+    <div class="form-group">
+      <label for="mhcD2">MHC-D2:</label>
+      <input type="text" id="mhcD2" placeholder="Contoh: Bakso Sapi">
+    </div>
+  </div>
+
+  <!-- Antrian Pembekuan -->
+  <div class="section-group">
+    <span class="section-title">Antrian Pembekuan</span>
+    <div class="form-group">
+      <label for="antrian">Daftar Antrian (1 baris = 1 poin):</label>
+      <textarea id="antrian" placeholder="Ketik per baris, contoh:&#10;Bakso Ayam 1 troli&#10;Bakso Sapi 2 troli"></textarea>
+      <div class="hint">*Setiap baris baru otomatis dapat tanda (-)</div>
+    </div>
+  </div>
+
+  <!-- Tandonan Packing -->
+  <div class="section-group">
+    <span class="section-title">Tandonan Packing</span>
+    <div class="form-group">
+      <label for="cooling">Cooling (1 baris = 1 poin):</label>
+      <textarea id="cooling" placeholder="Ketik per baris, contoh:&#10;Bakso Sapi 3 palet&#10;Bakso Jumbo 1 palet"></textarea>
+      <div class="hint">*Setiap baris baru otomatis dapat sub-poin (-)</div>
+    </div>
+    <div class="form-group">
+      <label for="cs6">CS6 (1 baris = 1 poin):</label>
+      <textarea id="cs6" placeholder="Ketik per baris, contoh:&#10;Bakso Sapi 2 bak&#10;Bakso Jumbo 1 bak"></textarea>
+      <div class="hint">*Setiap baris baru otomatis dapat sub-poin (-)</div>
+    </div>
+  </div>
+
+  <!-- Tombol Utama -->
+  <div class="btn-container">
+    <button class="btn-generate" onclick="generateText()">Generate Teks</button>
+    <button class="btn-reset" onclick="resetForm()">Reset</button>
+  </div>
+
+  <!-- Preview Teks & Tombol Copy -->
+  <div class="preview-box" id="previewBox">
+    <div class="preview-title">Hasil Teks Format WA:</div>
+    <pre id="outputPreview"></pre>
+    <button class="btn-copy" onclick="copyToClipboard()">Salin ke WA</button>
+  </div>
+</div>
+
+<div id="toast" class="toast">Teks berhasil disalin! Tinggal paste di WhatsApp.</div>
+
+<script>
+  // Fungsi list biasa untuk antrian
+  function formatList(rawText, bulletSymbol) {
+    if (!rawText.trim()) return `${bulletSymbol} -`;
+    return rawText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .map(line => `${bulletSymbol} ${line}`)
+      .join('\n');
+  }
+
+  // Fungsi list menjorok (nested) untuk Tandonan
+  function formatNestedList(rawText) {
+    if (!rawText.trim()) return `- -`;
+    return rawText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .map(line => `- ${line}`)
+      .join('\n');
+  }
+
+  function generateText() {
+    const title = 'Estafet Packing Line-4';
+    const iqf5 = document.getElementById('iqf5').value.trim() || '-';
+    const iqf6 = document.getElementById('iqf6').value.trim() || '-';
+    const mhw3 = document.getElementById('mhw3').value.trim() || '-';
+    const mhw4 = document.getElementById('mhw4').value.trim() || '-';
+    const mhcD1 = document.getElementById('mhcD1').value.trim() || '-';
+    const mhcD2 = document.getElementById('mhcD2').value.trim() || '-';
+
+    const antrian = formatList(document.getElementById('antrian').value, '-');
+    
+    // Generate list bersarang
+    const coolingList = formatNestedList(document.getElementById('cooling').value);
+    const cs6List = formatNestedList(document.getElementById('cs6').value);
+
+    // Simbol &#11045; (⬥)
+    const diamondSymbol = '⬥';
+
+    const result = `*${title}*
+
+\`IQF-5\` : ${iqf5}
+\`IQF-6\` : ${iqf6}
+
+\`MHW-3\`    : ${mhw3}
+\`MHW-4\`    : ${mhw4}
+\`MHC-D1\` : ${mhcD1}
+\`MHC-D2\` : ${mhcD2}
+
+\`Antrian Pembekuan\`
+${antrian}
+
+\`Tandonan Packing\`
+${diamondSymbol} Cooling :
+${coolingList}
+${diamondSymbol} CS6 :
+${cs6List}`;
+
+    const outputPreview = document.getElementById('outputPreview');
+    const previewBox = document.getElementById('previewBox');
+
+    outputPreview.textContent = result;
+    previewBox.style.display = 'block';
+
+    // Restart animasi flash kuning jika tombol diklik berulang kali
+    outputPreview.classList.remove('flash-effect');
+    void outputPreview.offsetWidth; // Trigger reflow
+    outputPreview.classList.add('flash-effect');
+
+    // Otomatis scroll layar ke area hasil generate
+    previewBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    return result;
+  }
+
+  function copyToClipboard() {
+    const textToCopy = generateText();
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      showToast();
+    }).catch(err => {
+      // Fallback untuk browser lama
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      showToast();
+    });
+  }
+
+  function showToast() {
+    const toast = document.getElementById('toast');
+    toast.style.display = 'block';
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 2500);
+  }
+
+  function resetForm() {
+    if(confirm('Yakin ingin mengosongkan semua isian?')) {
+      document.getElementById('iqf5').value = '';
+      document.getElementById('iqf6').value = '';
+      document.getElementById('mhw3').value = '';
+      document.getElementById('mhw4').value = '';
+      document.getElementById('mhcD1').value = '';
+      document.getElementById('mhcD2').value = '';
+      document.getElementById('antrian').value = '';
+      document.getElementById('cooling').value = '';
+      document.getElementById('cs6').value = '';
+      document.getElementById('outputPreview').textContent = '';
+      document.getElementById('previewBox').style.display = 'none';
+      
+      // Scroll kembali ke paling atas
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+</script>
+
+</body>
+</html>
