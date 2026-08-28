@@ -310,86 +310,122 @@
             white-space: nowrap;
         }
 
-        /* --- STYLE KUSTOM UNTUK MODAL LOGIN --- */
+        /* --- KUSTOM TAMPILAN MODAL LOGIN DESAIN BARU INTERAKTIF --- */
         .login-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(4px);
+            background: linear-gradient(135deg, rgba(15, 32, 16, 0.85), rgba(30, 70, 32, 0.9)), radial-gradient(circle at center, rgba(37, 211, 102, 0.15), transparent);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 999999;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
             box-sizing: border-box;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
         .login-box {
             background: #ffffff;
-            padding: 30px 25px;
-            border-radius: 12px;
+            padding: 35px 28px;
+            border-radius: 16px;
             max-width: 380px;
             width: 100%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            border-top: 5px solid #1e4620;
-            animation: fadeInModal 0.25s ease-out;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), 0 0 20px rgba(37, 211, 102, 0.1);
+            border-top: 5px solid #25d366;
+            animation: fadeInModal 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s ease, opacity 0.4s ease, border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         .form-group-login {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             text-align: left;
         }
         .form-group-login label {
             display: block;
-            font-size: 13px;
-            font-weight: bold;
+            font-size: 12px;
+            font-weight: 700;
             color: #4a5568;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .form-group-login input {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #cbd5e0;
-            border-radius: 6px;
+            padding: 12px 14px;
+            border: 1.5px solid #cbd5e0;
+            border-radius: 8px;
             font-size: 14px;
             box-sizing: border-box;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+            background-color: #f8fafc;
         }
         .form-group-login input:focus {
             border-color: #25d366;
-            box-shadow: 0 0 5px rgba(37, 211, 102, 0.4);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.2);
+            transform: translateY(-1px);
         }
         .btn-login {
             width: 100%;
-            background-color: #1e4620;
+            background: linear-gradient(135deg, #1e4620, #25d366);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 13px;
             font-size: 15px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
             margin-top: 10px;
-            box-shadow: 0 4px 6px rgba(30, 70, 32, 0.2);
-            transition: background 0.2s;
+            box-shadow: 0 4px 12px rgba(30, 70, 32, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s;
+            letter-spacing: 0.5px;
         }
         .btn-login:hover {
-            background-color: #143016;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4);
+        }
+        .btn-login:active {
+            transform: translateY(0);
         }
         .login-error {
             display: none;
-            background-color: #fed7d7;
-            color: #c53030;
+            background-color: #fff5f5;
+            color: #e53e3e;
             font-size: 13px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 18px;
             text-align: center;
             border: 1px solid #feb2b2;
-            font-weight: 500;
+            font-weight: 600;
+            animation: fadeInModal 0.2s ease-in-out;
+        }
+
+        /* ANIMASI INTERAKTIF LOGIN PAGE */
+        @keyframes loginShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        .shake-animation {
+            animation: loginShake 0.4s ease-in-out !important;
+            border-top-color: #e53e3e !important;
+        }
+        .login-success {
+            transform: scale(1.03);
+            border-top-color: #25d366 !important;
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.5) !important;
+        }
+        .slide-out-login {
+            opacity: 0 !important;
+            transform: translateY(40px) scale(0.95) !important;
+            pointer-events: none;
         }
 
         /* --- STYLE KUSTOM UNTUK NOTIFIKASI MODAL (BACKGROUND HITAM TRANSPARAN) --- */
@@ -448,9 +484,8 @@
 </head>
 <body>
 
-<!-- POPUP NOTIFIKASI LOGIN -->
 <div id="loginOverlay" class="login-overlay">
-    <div class="login-box">
+    <div class="login-box" id="loginBox">
         <div class="header-perusahaan" style="margin-bottom: 20px;">
             <h2 style="font-size: 20px;">Akses Laporan MHW</h2>
             <hr class="garis-judul">
@@ -465,7 +500,7 @@
             <label for="passwordInput">Password</label>
             <input type="password" id="passwordInput" placeholder="Masukkan Password" onkeypress="handleLoginKey(event)">
         </div>
-        <button type="button" class="btn-login" onclick="prosesLogin()">MASUK</button>
+        <button type="button" class="btn-login" id="btnLoginBtn" onclick="prosesLogin()">MASUK</button>
     </div>
 </div>
 
@@ -785,18 +820,39 @@
         updateOtomatisTanggalBatch();
     };
 
-    /* --- LOGIKA LOGIN AKSHES --- */
+    /* --- LOGIKA LOGIN AKSES & EFEK INTERAKTIF BARU --- */
     function prosesLogin() {
         const user = document.getElementById('usernameInput').value.trim();
         const pass = document.getElementById('passwordInput').value.trim();
         const errBox = document.getElementById('loginError');
+        const loginBox = document.getElementById('loginBox');
+        const overlay = document.getElementById('loginOverlay');
+        const btnLogin = document.getElementById('btnLoginBtn');
 
         if (user === "mhwline4" && pass === "putricantik") {
-            document.getElementById('loginOverlay').style.display = 'none';
             errBox.style.display = 'none';
+            loginBox.classList.remove('shake-animation');
+            loginBox.classList.add('login-success');
+            btnLogin.innerText = "MENYAMBUNGKAN...";
+            btnLogin.style.background = "#25d366";
+
+            setTimeout(() => {
+                loginBox.classList.add('slide-out-login');
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 400);
+            }, 500);
+
         } else {
             errBox.innerText = "Username atau Password salah!";
             errBox.style.display = 'block';
+
+            // Animasi getar interaktif saat login salah
+            loginBox.classList.remove('shake-animation');
+            void loginBox.offsetWidth; // Trigger reflow untuk reset animasi
+            loginBox.classList.add('shake-animation');
+
             document.getElementById('passwordInput').value = '';
             document.getElementById('passwordInput').focus();
         }
